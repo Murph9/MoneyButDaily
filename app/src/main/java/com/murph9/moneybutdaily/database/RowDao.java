@@ -1,4 +1,4 @@
-package com.murph.moneybutdaily.database;
+package com.murph9.moneybutdaily.database;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
@@ -6,7 +6,7 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
-import com.murph.moneybutdaily.model.Row;
+import com.murph9.moneybutdaily.model.Row;
 
 import java.util.List;
 

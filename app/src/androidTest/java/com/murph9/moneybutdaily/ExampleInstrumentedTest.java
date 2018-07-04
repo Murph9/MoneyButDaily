@@ -1,4 +1,4 @@
-package com.murph.moneybutdaily;
+package com.murph9.moneybutdaily;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

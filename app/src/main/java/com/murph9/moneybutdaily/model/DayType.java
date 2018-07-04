@@ -1,4 +1,4 @@
-package com.murph.moneybutdaily.model;
+package com.murph9.moneybutdaily.model;
 
 public enum DayType {
     None,

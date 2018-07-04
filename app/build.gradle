@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "com.murph.moneybutdaily"
+        applicationId "com.murph9.moneybutdaily"
         minSdkVersion 14
         targetSdkVersion 27
         versionCode 1
@@ -34,9 +34,12 @@ dependencies {
     implementation "android.arch.lifecycle:extensions:$rootProject.archLifecycleVersion"
     annotationProcessor "android.arch.lifecycle:compiler:$rootProject.archLifecycleVersion"
 
-    //JodaTime
+    // Joda Time
     implementation 'net.danlew:android.joda:2.9.9.4'
     testImplementation 'joda-time:joda-time:2.10'
+
+    // Graph View
+    implementation 'com.jjoe64:graphview:4.2.2'
 }
 
 

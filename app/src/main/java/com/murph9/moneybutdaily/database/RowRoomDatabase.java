@@ -1,4 +1,4 @@
-package com.murph.moneybutdaily.database;
+package com.murph9.moneybutdaily.database;
 
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
@@ -8,7 +8,7 @@ import android.arch.persistence.room.TypeConverters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.murph.moneybutdaily.model.Row;
+import com.murph9.moneybutdaily.model.Row;
 
 @Database(entities = {Row.class}, version = 1)
 @TypeConverters({Converters.class})

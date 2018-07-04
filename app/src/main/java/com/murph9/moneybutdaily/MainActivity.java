@@ -1,4 +1,4 @@
-package com.murph.moneybutdaily;
+package com.murph9.moneybutdaily;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -12,8 +12,12 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.murph.moneybutdaily.model.DayType;
-import com.murph.moneybutdaily.model.Row;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+import com.murph9.moneybutdaily.model.DayType;
+import com.murph9.moneybutdaily.model.Row;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -35,17 +39,19 @@ public class MainActivity extends AppCompatActivity {
 
         JodaTimeAndroid.init(this);
 
+        ///* TODO should be left as an example of how to dynamically update a view
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
         final RowListAdapter adapter = new RowListAdapter(this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        //*/
 
         mRowViewViewModel = ViewModelProviders.of(this).get(RowViewModel.class);
         mRowViewViewModel.getAllRows().observe(this, new Observer<List<Row>>() {
             @Override
             public void onChanged(@Nullable List<Row> rows) {
-                //TODO left as an example of how to dynamically update a list
-                //adapter.setRows(rows);
+                //TODO should be left as an example of how to dynamically update a view
+                adapter.setRows(rows);
 
                 setPageData(rows);
             }
@@ -58,6 +64,22 @@ public class MainActivity extends AppCompatActivity {
         float todayValue = calc.TotalForDay(new DateTime());
         TextView todayText = findViewById(R.id.todayText);
         todayText.setText(""+todayValue);
+
+        //update graph(s)
+        //http://www.android-graphview.org/download-getting-started/
+        GraphView weekGraph = findViewById(R.id.week_graph);
+        weekGraph.removeAllSeries();
+        weekGraph.getGridLabelRenderer().setHumanRounding(false); //founding dates makes no sense
+        weekGraph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(this));
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[] {
+        });
+        for (int i = 0; i < 6; i++) {
+            DateTime dt = new DateTime().plusDays(i - 6);
+            float totalToday = calc.TotalForDay(dt);
+            series.appendData(new DataPoint(dt.toDate(), totalToday), false, 10);
+        }
+        //TODO graph not showing anything useful - data seems to be correct
+        weekGraph.addSeries(series);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -66,7 +88,10 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == NEW_ROW_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
             Row row = new Row();
             row.Amount = data.getFloatExtra(NewRowActivity.EXTRA_AMOUNT, -1f);
-            row.From = new DateTime((long)data.getSerializableExtra(NewRowActivity.EXTRA_FROM));
+            long fromLong = data.getLongExtra(NewRowActivity.EXTRA_FROM, Long.MAX_VALUE);
+            if (fromLong != Long.MAX_VALUE)
+                row.From = new DateTime(fromLong);
+
             row.LengthCount = data.getIntExtra(NewRowActivity.EXTRA_LENGTHCOUNT, 0);
             row.LengthType = DayType.valueOf(DayType.class, data.getSerializableExtra(NewRowActivity.EXTRA_LENGTHTYPE).toString());
             row.Category = data.getStringExtra(NewRowActivity.EXTRA_CATEGORY);

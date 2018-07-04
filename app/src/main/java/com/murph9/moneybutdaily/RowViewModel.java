@@ -1,11 +1,11 @@
-package com.murph.moneybutdaily;
+package com.murph9.moneybutdaily;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 
-import com.murph.moneybutdaily.database.RowRepository;
-import com.murph.moneybutdaily.model.Row;
+import com.murph9.moneybutdaily.database.RowRepository;
+import com.murph9.moneybutdaily.model.Row;
 
 import java.util.List;
 

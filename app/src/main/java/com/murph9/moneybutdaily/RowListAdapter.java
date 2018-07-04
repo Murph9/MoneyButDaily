@@ -1,4 +1,4 @@
-package com.murph.moneybutdaily;
+package com.murph9.moneybutdaily;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.murph.moneybutdaily.model.Row;
+import com.murph9.moneybutdaily.model.Row;
 
 import java.util.List;
 
@@ -42,8 +42,8 @@ public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewH
     @Override
     public void onBindViewHolder(RowViewHolder holder, int position) {
         if (mRows != null) {
-            Row current = mRows.get(position);
-            holder.rowItemView.setText(current.Category + " " + current.CalcPerDay() + " " + current.Amount);
+            Row r = mRows.get(position);
+            holder.rowItemView.setText(r.Category + " " + r.Amount + " " + r.From + " " + r.LengthType+ "*" + r.LengthCount);
         } else {
             // Covers the case of data not being ready yet.
             holder.rowItemView.setText("No Row");

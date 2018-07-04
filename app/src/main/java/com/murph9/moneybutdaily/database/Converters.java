@@ -1,8 +1,8 @@
-package com.murph.moneybutdaily.database;
+package com.murph9.moneybutdaily.database;
 
 import android.arch.persistence.room.TypeConverter;
 
-import com.murph.moneybutdaily.model.DayType;
+import com.murph9.moneybutdaily.model.DayType;
 
 import org.joda.time.DateTime;
 
@@ -15,8 +15,7 @@ public class Converters {
         if (value == null)
             return null;
 
-        DateTime dt = new DateTime();
-        dt.plusMillis(value.intValue());
+        DateTime dt = new DateTime(value);
         return dt;
     }
 

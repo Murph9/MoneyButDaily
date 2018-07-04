@@ -1,4 +1,4 @@
-package com.murph.moneybutdaily.model;
+package com.murph9.moneybutdaily.model;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;

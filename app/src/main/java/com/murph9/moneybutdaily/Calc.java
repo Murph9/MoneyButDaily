@@ -1,7 +1,7 @@
-package com.murph.moneybutdaily;
+package com.murph9.moneybutdaily;
 
-import com.murph.moneybutdaily.model.DayType;
-import com.murph.moneybutdaily.model.Row;
+import com.murph9.moneybutdaily.model.DayType;
+import com.murph9.moneybutdaily.model.Row;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
