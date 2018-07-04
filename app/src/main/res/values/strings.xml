@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MoneyButDaily</string>
+    <string name="MainToday">Today:</string>
+    <string name="AddEntry">Add</string>
+</resources>
