@@ -3,17 +3,23 @@ package com.murph9.moneybutdaily;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.ValueDependentColor;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
+import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.murph9.moneybutdaily.model.DayType;
@@ -23,6 +29,7 @@ import net.danlew.android.joda.JodaTimeAndroid;
 
 import org.joda.time.DateTime;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,8 +46,23 @@ public class MainActivity extends AppCompatActivity {
 
         JodaTimeAndroid.init(this);
 
+        //init chart
+        GraphView weekGraph = findViewById(R.id.week_graph);
+        //note offsets
+        weekGraph.getViewport().setMinX(new DateTime().minusDays(6).minusHours(12).getMillis());
+        weekGraph.getViewport().setMaxX(new DateTime().plusHours(12).getMillis());
+        weekGraph.getViewport().setXAxisBoundsManual(true);
+        weekGraph.getViewport().setScrollable(true);
+
+        weekGraph.getGridLabelRenderer().setHumanRounding(false); //rounding dates makes no sense
+        weekGraph.getGridLabelRenderer().setLabelFormatter(new DateXAxisLabelFormatter());
+        weekGraph.getGridLabelRenderer().setNumHorizontalLabels(7);
+        weekGraph.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        weekGraph.getGridLabelRenderer().setNumVerticalLabels(6);
+
         ///* TODO should be left as an example of how to dynamically update a view
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
+        recyclerView.setVisibility(View.GONE);
         final RowListAdapter adapter = new RowListAdapter(this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -69,17 +91,38 @@ public class MainActivity extends AppCompatActivity {
         //http://www.android-graphview.org/download-getting-started/
         GraphView weekGraph = findViewById(R.id.week_graph);
         weekGraph.removeAllSeries();
-        weekGraph.getGridLabelRenderer().setHumanRounding(false); //founding dates makes no sense
-        weekGraph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(this));
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[] {
-        });
-        for (int i = 0; i < 6; i++) {
-            DateTime dt = new DateTime().plusDays(i - 6);
+
+        int rowCount = 12;
+
+        List<DataPoint> points = new LinkedList<>();
+        for (int i = -rowCount; i <= 0; i++) {
+            DateTime dt = new DateTime().plusDays(i);
             float totalToday = calc.TotalForDay(dt);
-            series.appendData(new DataPoint(dt.toDate(), totalToday), false, 10);
+            points.add(new DataPoint(dt.getMillis(), totalToday));
         }
-        //TODO graph not showing anything useful - data seems to be correct
+        //then add a future day so its empty
+        points.add(new DataPoint(new DateTime().plusDays(1).getMillis(), 0));
+
+        BarGraphSeries<DataPoint> series = new BarGraphSeries<>(points.toArray(new DataPoint[]{}));
+        series.setValueDependentColor(new ValueDependentColor<DataPoint>() {
+            public int get(DataPoint data) {
+                //very negative should be red (255,0,0)
+                //very positive should be green (0,255,0)
+                //yellow in the middle (255,255,0)
+                double val = data.getY();
+                if (val >= 0) {
+                    return Color.rgb((int)((Math.atan(-val/30)/Math.PI*2 + 1)*255), 255, 0);
+                } else {
+                    return Color.rgb(255, (int)((Math.atan(val/10)/Math.PI*2 + 1)*255), 0);
+                }
+            }
+        });
+        series.setDrawValuesOnTop(true);
+        series.setValuesOnTopColor(Color.BLACK);
+        series.setSpacing(10);
+
         weekGraph.addSeries(series);
+        weekGraph.invalidate();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -95,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
             row.LengthCount = data.getIntExtra(NewRowActivity.EXTRA_LENGTHCOUNT, 0);
             row.LengthType = DayType.valueOf(DayType.class, data.getSerializableExtra(NewRowActivity.EXTRA_LENGTHTYPE).toString());
             row.Category = data.getStringExtra(NewRowActivity.EXTRA_CATEGORY);
+            row.IsIncome = data.getBooleanExtra(NewRowActivity.EXTRA_ISINCOME, false);
             mRowViewViewModel.insert(row);
         } else {
             Toast.makeText(this, "Not saved", Toast.LENGTH_SHORT).show();
@@ -104,6 +148,21 @@ public class MainActivity extends AppCompatActivity {
     public void addEntry(View view) {
         Intent intent = new Intent(MainActivity.this, NewRowActivity.class);
         startActivityForResult(intent, NEW_ROW_ACTIVITY_REQUEST_CODE);
+    }
+
+    private class DateXAxisLabelFormatter extends DefaultLabelFormatter {
+        private String format = "M-d";
+
+        public DateXAxisLabelFormatter() { }
+
+        @Override
+        public String formatLabel(double value, boolean isValueX) {
+            if (isValueX) {
+                return new DateTime((long) value).toString(this.format);
+            } else {
+                return super.formatLabel(value, isValueX);
+            }
+        }
     }
 }
 

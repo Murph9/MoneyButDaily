@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -26,11 +27,13 @@ public class NewRowActivity extends AppCompatActivity {
     public static final String EXTRA_LENGTHCOUNT = "com.murph.moneybutdaily.LENGTHCOUNT";
     public static final String EXTRA_LENGTHTYPE = "com.murph.moneybutdaily.LENGTHTYPE";
     public static final String EXTRA_CATEGORY = "com.murph.moneybutdaily.CATEGORY";
+    public static final String EXTRA_ISINCOME = "com.murph.moneybutdaily.ISINCOME";
 
     private EditText mEditAmountView;
     private EditText mEditLengthCountView;
     private Spinner mEditLengthTypeView;
     private EditText mEditCategoryView;
+    private CheckBox mEditIsIncomeView;
 
     private DateTime From;
 
@@ -43,6 +46,7 @@ public class NewRowActivity extends AppCompatActivity {
         mEditLengthCountView = findViewById(R.id.edit_lengthcount);
         mEditLengthTypeView = findViewById(R.id.edit_lengthtype);
         mEditCategoryView = findViewById(R.id.edit_category);
+        mEditIsIncomeView = findViewById(R.id.is_income);
 
         mEditLengthTypeView.setAdapter(new ArrayAdapter<DayType>(this, android.R.layout.simple_spinner_item, DayType.values()));
 
@@ -56,6 +60,7 @@ public class NewRowActivity extends AppCompatActivity {
                 replyIntent.putExtra(EXTRA_LENGTHCOUNT, Integer.parseInt(mEditLengthCountView.getText().toString()));
                 replyIntent.putExtra(EXTRA_LENGTHTYPE, mEditLengthTypeView.getSelectedItem().toString());
                 replyIntent.putExtra(EXTRA_CATEGORY, mEditCategoryView.getText().toString());
+                replyIntent.putExtra(EXTRA_ISINCOME, mEditIsIncomeView.isChecked());
 
                 setResult(RESULT_OK, replyIntent);
                 finish();
