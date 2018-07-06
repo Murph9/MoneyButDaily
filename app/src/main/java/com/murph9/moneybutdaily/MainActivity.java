@@ -7,9 +7,6 @@ import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,10 +15,8 @@ import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.ValueDependentColor;
-import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
 import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.Row;
 
@@ -35,9 +30,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     public static final int NEW_ROW_ACTIVITY_REQUEST_CODE = 1;
+    public static final int REPORT_ACTIVITY_REQUEST_CODE = 2;
     private RowViewModel mRowViewViewModel;
 
-    private Calc calc;
+    public Calc calc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
         JodaTimeAndroid.init(this);
 
-        //init chart
+        //init charts
         GraphView weekGraph = findViewById(R.id.week_graph);
         //note offsets
         weekGraph.getViewport().setMinX(new DateTime().minusDays(6).minusHours(12).getMillis());
@@ -60,21 +56,23 @@ public class MainActivity extends AppCompatActivity {
         weekGraph.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
         weekGraph.getGridLabelRenderer().setNumVerticalLabels(6);
 
-        ///* TODO should be left as an example of how to dynamically update a view
-        RecyclerView recyclerView = findViewById(R.id.recyclerview);
-        recyclerView.setVisibility(View.GONE);
-        final RowListAdapter adapter = new RowListAdapter(this);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        //*/
+        GraphView monthGraph = findViewById(R.id.month_graph);
+        //note offsets
+        monthGraph.getViewport().setMinX(new DateTime().minusWeeks(4).minusHours(12).getMillis());
+        monthGraph.getViewport().setMaxX(new DateTime().plusHours(12).getMillis());
+        monthGraph.getViewport().setXAxisBoundsManual(true);
+        monthGraph.getViewport().setScrollable(true);
+
+        monthGraph.getGridLabelRenderer().setHumanRounding(false); //rounding dates makes no sense
+        monthGraph.getGridLabelRenderer().setLabelFormatter(new DateXAxisLabelFormatter());
+        monthGraph.getGridLabelRenderer().setNumHorizontalLabels(5);
+        monthGraph.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        monthGraph.getGridLabelRenderer().setNumVerticalLabels(6);
 
         mRowViewViewModel = ViewModelProviders.of(this).get(RowViewModel.class);
         mRowViewViewModel.getAllRows().observe(this, new Observer<List<Row>>() {
             @Override
             public void onChanged(@Nullable List<Row> rows) {
-                //TODO should be left as an example of how to dynamically update a view
-                adapter.setRows(rows);
-
                 setPageData(rows);
             }
         });
@@ -123,6 +121,42 @@ public class MainActivity extends AppCompatActivity {
 
         weekGraph.addSeries(series);
         weekGraph.invalidate();
+
+
+        GraphView monthGraph = findViewById(R.id.month_graph);
+        monthGraph.removeAllSeries();
+
+        rowCount = 8;
+
+        points = new LinkedList<>();
+        for (int i = -rowCount; i <= 0; i++) {
+            DateTime dt = new DateTime().plusWeeks(i);
+            float totalWeek = calc.TotalForWeek(dt);
+            points.add(new DataPoint(dt.getMillis(), totalWeek));
+        }
+        //then add a future week so its empty
+        points.add(new DataPoint(new DateTime().plusWeeks(1).getMillis(), 0));
+
+        series = new BarGraphSeries<>(points.toArray(new DataPoint[]{}));
+        series.setValueDependentColor(new ValueDependentColor<DataPoint>() {
+            public int get(DataPoint data) {
+                //very negative should be red (255,0,0)
+                //very positive should be green (0,255,0)
+                //yellow in the middle (255,255,0)
+                double val = data.getY();
+                if (val >= 0) {
+                    return Color.rgb((int)((Math.atan(-val/30)/Math.PI*2 + 1)*255), 255, 0);
+                } else {
+                    return Color.rgb(255, (int)((Math.atan(val/10)/Math.PI*2 + 1)*255), 0);
+                }
+            }
+        });
+        series.setDrawValuesOnTop(true);
+        series.setValuesOnTopColor(Color.BLACK);
+        series.setSpacing(10);
+
+        monthGraph.addSeries(series);
+        monthGraph.invalidate();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -148,6 +182,11 @@ public class MainActivity extends AppCompatActivity {
     public void addEntry(View view) {
         Intent intent = new Intent(MainActivity.this, NewRowActivity.class);
         startActivityForResult(intent, NEW_ROW_ACTIVITY_REQUEST_CODE);
+    }
+
+    public void viewReports(View view) {
+        Intent intent = new Intent(MainActivity.this, ReportActivity.class);
+        startActivityForResult(intent, REPORT_ACTIVITY_REQUEST_CODE);
     }
 
     private class DateXAxisLabelFormatter extends DefaultLabelFormatter {

@@ -124,4 +124,51 @@ public class CalcTest {
 
         //TODO more tests when it figures out the range (1d_2w) problem
     }
+
+
+    @Test
+    public void Income() {
+        Calc calc = new Calc(Arrays.asList(
+            new Row()
+            {
+                {
+                    From = new DateTime(2018,5,16,0,0);
+                    Amount = 1000;
+                    LengthCount = 4;
+                    LengthType = DayType.Week;
+                    Category = "income?";
+                    IsIncome = true;
+                    RepeatCount = 4;
+                    RepeatType = DayType.Week;
+                    RepeatEnd = new DateTime(2019,1,1,0,0);
+                }
+            },
+            new Row()
+            {
+                {
+                    From = new DateTime(2018,5,26,0,0);
+                    Amount = 100;
+                    LengthCount = 4;
+                    LengthType = DayType.Week;
+                    Category = "food";
+                    IsIncome = false;
+                    RepeatCount = 4;
+                    RepeatType = DayType.Week;
+                    RepeatEnd = new DateTime(2019,1,1,0,0);
+                }
+            })
+        );
+
+        float incomeDay = 1000 / 28f;
+        float foodDay = 100 / 28f;
+
+        assertEquals(calc.TotalForDay(new DateTime("2018/06/01")), incomeDay - foodDay, DELTA);
+        assertEquals(calc.TotalForDay(new DateTime("2018/06/30")), incomeDay - foodDay, DELTA);
+        assertEquals(calc.TotalForDay(new DateTime("2018/07/01")), incomeDay - foodDay, DELTA);
+
+        assertEquals(calc.TotalForWeek(new DateTime("2018/06/01")), 7 * (incomeDay - foodDay), DELTA);
+        assertEquals(calc.TotalForWeek(new DateTime("2018/07/01")), 7 * (incomeDay - foodDay), DELTA);
+
+        assertEquals(calc.TotalForMonth(new DateTime("2018/07/01")), 31 * (incomeDay - foodDay), DELTA); //31 days in july
+    }
 }

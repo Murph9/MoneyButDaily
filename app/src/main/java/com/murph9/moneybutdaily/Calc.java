@@ -39,6 +39,10 @@ public class Calc {
     public Calc(Collection<Row> data) {
         _firstEntryDate = new DateTime(Long.MIN_VALUE);
 
+        if (data == null) {
+            data = new LinkedList<>();
+        }
+
         for (Row r: data) {
             _dayRanges.add(new Range(r.From, r.CalcFirstPeriodEndDay(), r.CalcLastDay(), r));
 
