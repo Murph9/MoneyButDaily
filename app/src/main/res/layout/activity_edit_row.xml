@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".NewRowActivity">
+    tools:context=".EditRowActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -76,6 +76,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Is Income" />
+
+        <CheckBox
+            android:id="@+id/is_repeat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Repeats" />
 
         <Button
             android:id="@+id/button_save"

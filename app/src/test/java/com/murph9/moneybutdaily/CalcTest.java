@@ -71,18 +71,20 @@ public class CalcTest {
     }
 
     @Test
-    public void SimpleDay() throws Exception {
+    public void SimpleDay() {
         Row row = Test9_1Day_None;
-        row.Validate();
+        String result = row.Validate();
+        assertNull(result, "Row validation error: " + result);
 
         assertEquals(row.CalcPerDay(), -9f, DELTA);
         assertEquals(row.CalcFirstPeriodEndDay(), row.From.plusDays(1)); //because we ignore the last day of the period this makes sense
     }
 
     @Test
-    public void SimpleYear() throws Exception {
+    public void SimpleYear() {
         Row row = Test730_Year_Year;
-        row.Validate();
+        String result = row.Validate();
+        assertNull(result, "Row validation error: " + result);
 
         assertEquals(row.CalcPerDay(), 2f, DELTA);
         assertEquals(row.CalcFirstPeriodEndDay(), new DateTime(2019,6,1, 0, 0));

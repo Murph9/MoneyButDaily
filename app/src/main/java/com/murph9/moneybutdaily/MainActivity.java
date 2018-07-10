@@ -17,7 +17,6 @@ import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.ValueDependentColor;
 import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
-import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.Row;
 
 import net.danlew.android.joda.JodaTimeAndroid;
@@ -29,10 +28,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final int NEW_ROW_ACTIVITY_REQUEST_CODE = 1;
+    public static final int EDIT_ROW_ACTIVITY_REQUEST_CODE = 1;
     public static final int REPORT_ACTIVITY_REQUEST_CODE = 2;
     public static final int ROW_LIST_ACTIVITY_REQUEST_CODE = 3;
-    private RowViewModel mRowViewViewModel;
+    public static RowViewModel RowViewViewModel;
 
     public Calc calc;
 
@@ -70,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
         monthGraph.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
         monthGraph.getGridLabelRenderer().setNumVerticalLabels(6);
 
-        mRowViewViewModel = ViewModelProviders.of(this).get(RowViewModel.class);
-        mRowViewViewModel.getAllRows().observe(this, new Observer<List<Row>>() {
+        RowViewViewModel = ViewModelProviders.of(this).get(RowViewModel.class);
+        RowViewViewModel.getAllRows().observe(this, new Observer<List<Row>>() {
             @Override
             public void onChanged(@Nullable List<Row> rows) {
                 setPageData(rows);
@@ -160,31 +159,22 @@ public class MainActivity extends AppCompatActivity {
         monthGraph.invalidate();
     }
 
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == NEW_ROW_ACTIVITY_REQUEST_CODE) {
+        if (requestCode == EDIT_ROW_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Row row = new Row();
-                row.Amount = data.getFloatExtra(NewRowActivity.EXTRA_AMOUNT, -1f);
-                long fromLong = data.getLongExtra(NewRowActivity.EXTRA_FROM, Long.MAX_VALUE);
-                if (fromLong != Long.MAX_VALUE)
-                    row.From = new DateTime(fromLong);
-
-                row.LengthCount = data.getIntExtra(NewRowActivity.EXTRA_LENGTHCOUNT, 0);
-                row.LengthType = DayType.valueOf(DayType.class, data.getSerializableExtra(NewRowActivity.EXTRA_LENGTHTYPE).toString());
-                row.Category = data.getStringExtra(NewRowActivity.EXTRA_CATEGORY);
-                row.IsIncome = data.getBooleanExtra(NewRowActivity.EXTRA_ISINCOME, false);
-                mRowViewViewModel.insert(row);
+                Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Not saved", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Not saved", Toast.LENGTH_LONG).show();
             }
         }
     }
 
     public void addEntry(View view) {
-        Intent intent = new Intent(MainActivity.this, NewRowActivity.class);
-        startActivityForResult(intent, NEW_ROW_ACTIVITY_REQUEST_CODE);
+        Intent intent = new Intent(MainActivity.this, EditRowActivity.class);
+        startActivityForResult(intent, EDIT_ROW_ACTIVITY_REQUEST_CODE);
     }
 
     public void viewReports(View view) {

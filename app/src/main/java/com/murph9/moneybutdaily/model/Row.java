@@ -55,32 +55,33 @@ public class Row {
         RepeatType = DayType.None;
     }
 
-    //TODO use before saving
-    public void Validate() throws Exception {
+    public String Validate() {
         if (Amount <= 0)
-            throw new Exception("Amount is 0 or negative: " + Amount);
+            return "Amount is 0 or negative: " + Amount;
         if (From == null) //im not convinced of this error
-            throw new Exception("From start date not set");
+            return "From start date not set";
         if (LengthCount == 0 && LengthType != DayType.Day)
-            throw new Exception("Length count cannot be 0, it is only valid for the day type.");
+            return "Length count cannot be 0, it is only valid for the day type.";
         if (LengthCount <= 0)
-            throw new Exception("Length count cannot be negative.");
+            return "Length count cannot be negative.";
         if (LengthType == DayType.None)
-            throw new Exception("Length type must not be None");
+            return "Length type must not be None";
         if ((RepeatCount != 0 && RepeatType == DayType.None) || (RepeatCount == 0 && RepeatType != DayType.None))
-            throw new Exception("Only one of the repeat type fields is set");
+            return "Only one of the repeat type fields is set";
         if (RepeatCount != 0 && RepeatEnd != null && RepeatEnd.isBefore(From))
-            throw new Exception("RepeatEnd date earlier than the start date (From).");
+            return "RepeatEnd date earlier than the start date (From).";
 
         //TODO some less awesome validations because date calculations are hard:
         // (if something lasts a day but repeats weekly (1d_1w), it does NOT handle it, so remove these cases..)
         if (RepeatCount != 0 || RepeatType != DayType.None)
         {
             if (LengthType != RepeatType)
-                throw new Exception("Length type and Repeat type must be the same.");
+                return "Length type and Repeat type must be the same.";
             if (LengthCount != RepeatCount)
-                throw new Exception("Length count and Repeat count must be the same.");
+                return "Length count and Repeat count must be the same.";
         }
+
+        return null;
     }
 
     public float CalcPerDay() {

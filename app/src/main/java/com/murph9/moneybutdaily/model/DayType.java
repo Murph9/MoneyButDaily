@@ -6,5 +6,7 @@ public enum DayType {
     Week,
     Month,
     Quarterly,
-    Year
+    Year;
+
+    public static final DayType[] CAN_SELECT = new DayType[] { Day, Week, Month, Quarterly, Year };
 }

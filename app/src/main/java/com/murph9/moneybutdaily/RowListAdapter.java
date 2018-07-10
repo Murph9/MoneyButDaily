@@ -1,6 +1,7 @@
 package com.murph9.moneybutdaily;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -25,10 +26,17 @@ public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewH
 
     private final LayoutInflater mInflater;
     private List<Row> mRows; // Cached copy of rows
+    private final Context mCon;
+    private RowListActivity activity;
 
     RowListAdapter(Context context) {
+        mCon = context;
         mInflater = LayoutInflater.from(context);
         fromFormat = DateTimeFormat.forPattern("yyy/MM/dd");
+    }
+
+    public void addActivityCallback(RowListActivity rowListActivity) {
+        this.activity = rowListActivity;
     }
 
     @NonNull
@@ -41,7 +49,7 @@ public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewH
     @Override
     public void onBindViewHolder(@NonNull RowViewHolder holder, int position) {
         if (mRows != null) {
-            Row r = mRows.get(position);
+            final Row r = mRows.get(position);
             holder.rowItem_Category.setText(r.Category);
             holder.rowItem_Amount.setText("$"+r.Amount);
             holder.rowItem_StartDate.setText(r.From.toString(fromFormat));
@@ -49,18 +57,18 @@ public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewH
             holder.rowItem_LengthType.setText(r.LengthType+"");
             holder.rowItem_IsIncome.setText(r.IsIncome ? "y" : "n");
             holder.rowItem_Repeat.setText(r.RepeatType != DayType.None ? "y" : "n");
+
+            //add listener for button press
+            holder.rowItem_Edit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    activity.editRow(r);
+                }
+            });
         } else {
             // Covers the case of data not being ready yet.
             holder.rowItem_StartDate.setText("No Row found");
         }
-
-        //add listener for button press
-        holder.rowItem_Edit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO open intent with variable r.Line probably
-            }
-        });
     }
 
     void setRows(List<Row> rows){
@@ -76,7 +84,6 @@ public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewH
             return mRows.size();
         else return 0;
     }
-
 
     class RowViewHolder extends RecyclerView.ViewHolder {
         private final TextView rowItem_Category;
