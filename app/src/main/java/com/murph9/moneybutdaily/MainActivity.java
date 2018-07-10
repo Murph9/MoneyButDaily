@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int NEW_ROW_ACTIVITY_REQUEST_CODE = 1;
     public static final int REPORT_ACTIVITY_REQUEST_CODE = 2;
+    public static final int ROW_LIST_ACTIVITY_REQUEST_CODE = 3;
     private RowViewModel mRowViewViewModel;
 
     public Calc calc;
@@ -162,20 +163,22 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == NEW_ROW_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
-            Row row = new Row();
-            row.Amount = data.getFloatExtra(NewRowActivity.EXTRA_AMOUNT, -1f);
-            long fromLong = data.getLongExtra(NewRowActivity.EXTRA_FROM, Long.MAX_VALUE);
-            if (fromLong != Long.MAX_VALUE)
-                row.From = new DateTime(fromLong);
+        if (requestCode == NEW_ROW_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Row row = new Row();
+                row.Amount = data.getFloatExtra(NewRowActivity.EXTRA_AMOUNT, -1f);
+                long fromLong = data.getLongExtra(NewRowActivity.EXTRA_FROM, Long.MAX_VALUE);
+                if (fromLong != Long.MAX_VALUE)
+                    row.From = new DateTime(fromLong);
 
-            row.LengthCount = data.getIntExtra(NewRowActivity.EXTRA_LENGTHCOUNT, 0);
-            row.LengthType = DayType.valueOf(DayType.class, data.getSerializableExtra(NewRowActivity.EXTRA_LENGTHTYPE).toString());
-            row.Category = data.getStringExtra(NewRowActivity.EXTRA_CATEGORY);
-            row.IsIncome = data.getBooleanExtra(NewRowActivity.EXTRA_ISINCOME, false);
-            mRowViewViewModel.insert(row);
-        } else {
-            Toast.makeText(this, "Not saved", Toast.LENGTH_SHORT).show();
+                row.LengthCount = data.getIntExtra(NewRowActivity.EXTRA_LENGTHCOUNT, 0);
+                row.LengthType = DayType.valueOf(DayType.class, data.getSerializableExtra(NewRowActivity.EXTRA_LENGTHTYPE).toString());
+                row.Category = data.getStringExtra(NewRowActivity.EXTRA_CATEGORY);
+                row.IsIncome = data.getBooleanExtra(NewRowActivity.EXTRA_ISINCOME, false);
+                mRowViewViewModel.insert(row);
+            } else {
+                Toast.makeText(this, "Not saved", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -187,6 +190,11 @@ public class MainActivity extends AppCompatActivity {
     public void viewReports(View view) {
         Intent intent = new Intent(MainActivity.this, ReportActivity.class);
         startActivityForResult(intent, REPORT_ACTIVITY_REQUEST_CODE);
+    }
+
+    public void viewRowList(View view) {
+        Intent intent = new Intent(MainActivity.this, RowListActivity.class);
+        startActivityForResult(intent, ROW_LIST_ACTIVITY_REQUEST_CODE);
     }
 
     private class DateXAxisLabelFormatter extends DefaultLabelFormatter {

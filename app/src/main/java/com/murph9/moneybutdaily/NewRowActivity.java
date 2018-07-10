@@ -20,6 +20,9 @@ import com.murph9.moneybutdaily.model.DayType;
 
 import org.joda.time.DateTime;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class NewRowActivity extends AppCompatActivity {
 
     public static final String EXTRA_AMOUNT = "com.murph.moneybutdaily.AMOUNT";
@@ -48,7 +51,9 @@ public class NewRowActivity extends AppCompatActivity {
         mEditCategoryView = findViewById(R.id.edit_category);
         mEditIsIncomeView = findViewById(R.id.is_income);
 
-        mEditLengthTypeView.setAdapter(new ArrayAdapter<DayType>(this, android.R.layout.simple_spinner_item, DayType.values()));
+        List<DayType> types = Arrays.asList(DayType.values());
+        types.remove(DayType.None);
+        mEditLengthTypeView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, types));
 
         final Button button = findViewById(R.id.button_save);
         button.setOnClickListener(new View.OnClickListener() {

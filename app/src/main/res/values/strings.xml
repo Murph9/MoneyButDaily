@@ -2,4 +2,6 @@
     <string name="app_name">MoneyButDaily</string>
     <string name="MainToday">Today:</string>
     <string name="AddEntry">Add</string>
+    <string name="title_activity_row_list">RowListActivity</string>
+    <string name="action_settings">Settings</string>
 </resources>

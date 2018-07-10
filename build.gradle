@@ -28,7 +28,6 @@ task clean(type: Delete) {
 
 
 ext {
-    //TODO update these versions please
-    roomVersion = '1.0.0'
-    archLifecycleVersion = '1.1.0'
+    roomVersion = '1.1.1'
+    archLifecycleVersion = '1.1.1'
 }
