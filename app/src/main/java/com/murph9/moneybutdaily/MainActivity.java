@@ -69,6 +69,10 @@ public class MainActivity extends AppCompatActivity {
         monthGraph.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
         monthGraph.getGridLabelRenderer().setNumVerticalLabels(6);
 
+        //My BarGraph
+        BarGraphView bgv = findViewById(R.id.week_bar_graph);
+        bgv.init(new LinkedList<BarGraphView.Bar>());
+
         RowViewViewModel = ViewModelProviders.of(this).get(RowViewModel.class);
         RowViewViewModel.getAllRows().observe(this, new Observer<List<Row>>() {
             @Override
@@ -84,6 +88,23 @@ public class MainActivity extends AppCompatActivity {
         float todayValue = calc.TotalForDay(new DateTime());
         TextView todayText = findViewById(R.id.todayText);
         todayText.setText(""+todayValue);
+
+        //update my bar graph
+        BarGraphView bgv = findViewById(R.id.week_bar_graph);
+        List<BarGraphView.Bar> bars = new LinkedList<>();
+
+        //TODO magic numbers
+        int weekRowCount = 12;
+        String barFormat = "MMM-d";
+        for (int i = -weekRowCount; i <= 0; i++) {
+            DateTime dt = new DateTime().plusDays(i);
+            float totalToday = calc.TotalForDay(dt);
+            bars.add(new BarGraphView.Bar(totalToday, dt.toString(barFormat)));
+        }
+        //then add a future day as prediction
+        bars.add(new BarGraphView.Bar(0, new DateTime().toString(barFormat)));
+
+        bgv.updateBars(bars);
 
         //update graph(s)
         //http://www.android-graphview.org/download-getting-started/

@@ -10,7 +10,7 @@ import android.support.annotation.NonNull;
 
 import com.murph9.moneybutdaily.model.Row;
 
-@Database(entities = {Row.class}, version = 1)
+@Database(entities = {Row.class}, version = 1, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class RowRoomDatabase extends RoomDatabase {
     public abstract RowDao rowDao();
