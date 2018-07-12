@@ -1,8 +1,10 @@
 package com.murph9.moneybutdaily;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +15,7 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.murph9.moneybutdaily.model.DayType;
@@ -24,6 +27,7 @@ import org.joda.time.DateTime;
 public class EditRowActivity extends AppCompatActivity {
 
     public static final String EXTRA_LINE = "com.murph.moneybutdaily.Line";
+    public static final String DATE_FORMAT = "yyyy/MM/dd";
 
     private EditText mEditAmountView;
     private EditText mEditLengthCountView;
@@ -68,7 +72,14 @@ public class EditRowActivity extends AppCompatActivity {
             mEditCategoryView.setText(editRow.Category);
             mEditIsIncomeView.setChecked(editRow.IsIncome);
             mEditIsRepeatView.setChecked(editRow.RepeatType != DayType.None);
+
             From = editRow.From;
+            TextView startDate = findViewById(R.id.startDateValue);
+            startDate.setText(From.toString(EditRowActivity.DATE_FORMAT));
+        } else {
+            //remove the delete button, as its not usable on create
+            Button deleteButton = findViewById(R.id.button_delete);
+            deleteButton.setVisibility(View.GONE);
         }
 
         mEditLengthTypeView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, DayType.CAN_SELECT));
@@ -108,6 +119,29 @@ public class EditRowActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    public void onDeleteClick(View view) {
+        //are you sure dialog?
+
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch(which) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        EditRowActivity.this.rowViewModel.delete(editRow);
+                        setResult(RESULT_CANCELED);
+                        finish();
+                        break;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                    default:
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+        builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
     }
 
     public void onFromDateClick(View view) {
@@ -151,6 +185,8 @@ public class EditRowActivity extends AppCompatActivity {
         public void onDateSet(DatePicker view, int year, int month, int day) {
             // Do something with the date chosen by the user
             act.From = new DateTime(year,month + 1,day,0,0);
+            TextView startDate = act.findViewById(R.id.startDateValue);
+            startDate.setText(act.From.toString(EditRowActivity.DATE_FORMAT));
         }
     }
 }

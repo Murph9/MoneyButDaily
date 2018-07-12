@@ -3,7 +3,6 @@ package com.murph9.moneybutdaily;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,20 +10,21 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jjoe64.graphview.DefaultLabelFormatter;
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.GridLabelRenderer;
-import com.jjoe64.graphview.ValueDependentColor;
-import com.jjoe64.graphview.series.BarGraphSeries;
-import com.jjoe64.graphview.series.DataPoint;
 import com.murph9.moneybutdaily.model.Row;
 
 import net.danlew.android.joda.JodaTimeAndroid;
-
 import org.joda.time.DateTime;
 
 import java.util.LinkedList;
 import java.util.List;
+
+//TODO
+/*
+ fix gaps in repeat (1 day repeat 1 day leaves 6 days gap)
+ test cases for the stupid day edge cases
+ a page for selecting rows for editing/removing
+ export/import? rows button
+*/
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     public static RowViewModel RowViewViewModel;
 
     public Calc calc;
+    private DateTime dayGraphStart;
+    private DateTime monthGraphStart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,35 +44,11 @@ public class MainActivity extends AppCompatActivity {
 
         JodaTimeAndroid.init(this);
 
-        //init charts
-        GraphView weekGraph = findViewById(R.id.week_graph);
-        //note offsets
-        weekGraph.getViewport().setMinX(new DateTime().minusDays(6).minusHours(12).getMillis());
-        weekGraph.getViewport().setMaxX(new DateTime().plusHours(12).getMillis());
-        weekGraph.getViewport().setXAxisBoundsManual(true);
-        weekGraph.getViewport().setScrollable(true);
+        //My BarGraphs
+        BarGraphView bgv = findViewById(R.id.day_bar_graph);
+        bgv.init(new LinkedList<BarGraphView.Bar>());
 
-        weekGraph.getGridLabelRenderer().setHumanRounding(false); //rounding dates makes no sense
-        weekGraph.getGridLabelRenderer().setLabelFormatter(new DateXAxisLabelFormatter());
-        weekGraph.getGridLabelRenderer().setNumHorizontalLabels(7);
-        weekGraph.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
-        weekGraph.getGridLabelRenderer().setNumVerticalLabels(6);
-
-        GraphView monthGraph = findViewById(R.id.month_graph);
-        //note offsets
-        monthGraph.getViewport().setMinX(new DateTime().minusWeeks(4).minusHours(12).getMillis());
-        monthGraph.getViewport().setMaxX(new DateTime().plusHours(12).getMillis());
-        monthGraph.getViewport().setXAxisBoundsManual(true);
-        monthGraph.getViewport().setScrollable(true);
-
-        monthGraph.getGridLabelRenderer().setHumanRounding(false); //rounding dates makes no sense
-        monthGraph.getGridLabelRenderer().setLabelFormatter(new DateXAxisLabelFormatter());
-        monthGraph.getGridLabelRenderer().setNumHorizontalLabels(5);
-        monthGraph.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
-        monthGraph.getGridLabelRenderer().setNumVerticalLabels(6);
-
-        //My BarGraph
-        BarGraphView bgv = findViewById(R.id.week_bar_graph);
+        bgv = findViewById(R.id.month_bar_graph);
         bgv.init(new LinkedList<BarGraphView.Bar>());
 
         RowViewViewModel = ViewModelProviders.of(this).get(RowViewModel.class);
@@ -80,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
                 setPageData(rows);
             }
         });
+
+        dayGraphStart = new DateTime().minusDays(6);
+        monthGraphStart = new DateTime().minusDays(new DateTime().dayOfMonth().get() - 1).minusMonths(5);
     }
 
     private void setPageData(List<Row> rows) {
@@ -89,95 +70,35 @@ public class MainActivity extends AppCompatActivity {
         TextView todayText = findViewById(R.id.todayText);
         todayText.setText(""+todayValue);
 
-        //update my bar graph
-        BarGraphView bgv = findViewById(R.id.week_bar_graph);
+        updateGraphs();
+    }
+
+    private void updateGraphs() {
+        //day graph
+        String dayBarFormat = "MMM-d";
+
+        BarGraphView bgv = findViewById(R.id.day_bar_graph);
         List<BarGraphView.Bar> bars = new LinkedList<>();
 
-        //TODO magic numbers
-        int weekRowCount = 12;
-        String barFormat = "MMM-d";
-        for (int i = -weekRowCount; i <= 0; i++) {
-            DateTime dt = new DateTime().plusDays(i);
+        for (int i = 0; i < 7; i++) {
+            DateTime dt = dayGraphStart.plusDays(i);
             float totalToday = calc.TotalForDay(dt);
-            bars.add(new BarGraphView.Bar(totalToday, dt.toString(barFormat)));
+            bars.add(new BarGraphView.Bar(totalToday, dt.toString(dayBarFormat)));
         }
-        //then add a future day as prediction
-        bars.add(new BarGraphView.Bar(0, new DateTime().toString(barFormat)));
-
         bgv.updateBars(bars);
 
-        //update graph(s)
-        //http://www.android-graphview.org/download-getting-started/
-        GraphView weekGraph = findViewById(R.id.week_graph);
-        weekGraph.removeAllSeries();
+        //month graph
+        String monthBarFormat = "yy-MMM";
 
-        int rowCount = 12;
+        bgv = findViewById(R.id.month_bar_graph);
+        bars = new LinkedList<>();
 
-        List<DataPoint> points = new LinkedList<>();
-        for (int i = -rowCount; i <= 0; i++) {
-            DateTime dt = new DateTime().plusDays(i);
-            float totalToday = calc.TotalForDay(dt);
-            points.add(new DataPoint(dt.getMillis(), totalToday));
+        for (int i = 0; i < 7; i++) {
+            DateTime dt = monthGraphStart.plusMonths(i);
+            float totalToday = calc.TotalForMonth(dt);
+            bars.add(new BarGraphView.Bar(totalToday, dt.toString(monthBarFormat)));
         }
-        //then add a future day so its empty
-        points.add(new DataPoint(new DateTime().plusDays(1).getMillis(), 0));
-
-        BarGraphSeries<DataPoint> series = new BarGraphSeries<>(points.toArray(new DataPoint[]{}));
-        series.setValueDependentColor(new ValueDependentColor<DataPoint>() {
-            public int get(DataPoint data) {
-                //very negative should be red (255,0,0)
-                //very positive should be green (0,255,0)
-                //yellow in the middle (255,255,0)
-                double val = data.getY();
-                if (val >= 0) {
-                    return Color.rgb((int)((Math.atan(-val/30)/Math.PI*2 + 1)*255), 255, 0);
-                } else {
-                    return Color.rgb(255, (int)((Math.atan(val/10)/Math.PI*2 + 1)*255), 0);
-                }
-            }
-        });
-        series.setDrawValuesOnTop(true);
-        series.setValuesOnTopColor(Color.BLACK);
-        series.setSpacing(10);
-
-        weekGraph.addSeries(series);
-        weekGraph.invalidate();
-
-
-        GraphView monthGraph = findViewById(R.id.month_graph);
-        monthGraph.removeAllSeries();
-
-        rowCount = 8;
-
-        points = new LinkedList<>();
-        for (int i = -rowCount; i <= 0; i++) {
-            DateTime dt = new DateTime().plusWeeks(i);
-            float totalWeek = calc.TotalForWeek(dt);
-            points.add(new DataPoint(dt.getMillis(), totalWeek));
-        }
-        //then add a future week so its empty
-        points.add(new DataPoint(new DateTime().plusWeeks(1).getMillis(), 0));
-
-        series = new BarGraphSeries<>(points.toArray(new DataPoint[]{}));
-        series.setValueDependentColor(new ValueDependentColor<DataPoint>() {
-            public int get(DataPoint data) {
-                //very negative should be red (255,0,0)
-                //very positive should be green (0,255,0)
-                //yellow in the middle (255,255,0)
-                double val = data.getY();
-                if (val >= 0) {
-                    return Color.rgb((int)((Math.atan(-val/30)/Math.PI*2 + 1)*255), 255, 0);
-                } else {
-                    return Color.rgb(255, (int)((Math.atan(val/10)/Math.PI*2 + 1)*255), 0);
-                }
-            }
-        });
-        series.setDrawValuesOnTop(true);
-        series.setValuesOnTopColor(Color.BLACK);
-        series.setSpacing(10);
-
-        monthGraph.addSeries(series);
-        monthGraph.invalidate();
+        bgv.updateBars(bars);
     }
 
     @Override
@@ -208,26 +129,20 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, ROW_LIST_ACTIVITY_REQUEST_CODE);
     }
 
-    private class DateXAxisLabelFormatter extends DefaultLabelFormatter {
-        private String format = "M-d";
-
-        public DateXAxisLabelFormatter() { }
-
-        @Override
-        public String formatLabel(double value, boolean isValueX) {
-            if (isValueX) {
-                return new DateTime((long) value).toString(this.format);
-            } else {
-                return super.formatLabel(value, isValueX);
-            }
-        }
+    public void addDay(View view) {
+        dayGraphStart = dayGraphStart.plusDays(1);
+        updateGraphs();
+    }
+    public void minusDay(View view) {
+        dayGraphStart = dayGraphStart.minusDays(1);
+        updateGraphs();
+    }
+    public void addMonth(View view) {
+        monthGraphStart = monthGraphStart.plusMonths(1);
+        updateGraphs();
+    }
+    public void minusMonth(View view) {
+        monthGraphStart = monthGraphStart.minusMonths(1);
+        updateGraphs();
     }
 }
-
-//TODO
-/*
- fix gaps in repeat (1 day repeat 1 week leaves 6 days gap)
- test cases for the stupid day edge cases
- a page for selecting rows for editing/removing
- export/import? rows button
-*/

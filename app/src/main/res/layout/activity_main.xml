@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
@@ -25,13 +26,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TODO"
-        app:layout_constraintBaseline_toBaselineOf="@+id/button2"
-        app:layout_constraintEnd_toStartOf="@+id/button2"
+        app:layout_constraintBaseline_toBaselineOf="@+id/add_button"
+        app:layout_constraintEnd_toStartOf="@+id/add_button"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/todayLabel" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/add_button"
         android:layout_width="wrap_content"
         android:layout_height="45dp"
         android:layout_marginTop="8dp"
@@ -42,44 +43,45 @@
         app:layout_constraintStart_toEndOf="@+id/todayText"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.jjoe64.graphview.GraphView
-        android:id="@+id/week_graph"
+    <com.murph9.moneybutdaily.BarGraphView
+        android:id="@+id/day_bar_graph"
         android:layout_width="match_parent"
         android:layout_height="150dp"
         android:layout_marginTop="8dp"
+        android:background="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+        app:layout_constraintTop_toBottomOf="@+id/day_label" />
 
-    <com.jjoe64.graphview.GraphView
-        android:id="@+id/month_graph"
+    <com.murph9.moneybutdaily.BarGraphView
+        android:id="@+id/month_bar_graph"
         android:layout_width="match_parent"
         android:layout_height="150dp"
         android:layout_marginTop="8dp"
+        android:background="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+        app:layout_constraintTop_toBottomOf="@+id/month_label" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/day_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Week"
+        android:text="Day"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button2" />
+        app:layout_constraintTop_toBottomOf="@+id/add_button" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/month_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Month"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/week_graph" />
+        app:layout_constraintTop_toBottomOf="@+id/day_bar_graph" />
 
     <Button
         android:id="@+id/view_report"
@@ -87,10 +89,10 @@
         android:layout_height="wrap_content"
         android:onClick="viewReports"
         android:text="Reports"
-        app:layout_constraintBaseline_toBaselineOf="@+id/button2"
+        app:layout_constraintBaseline_toBaselineOf="@+id/add_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/button2" />
+        app:layout_constraintStart_toEndOf="@+id/add_button" />
 
     <Button
         android:id="@+id/viewRowList"
@@ -102,16 +104,56 @@
         android:onClick="viewRowList"
         android:text="View Entries"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/month_graph" />
+        app:layout_constraintTop_toBottomOf="@+id/month_bar_graph" />
 
-    <com.murph9.moneybutdaily.BarGraphView
-        android:id="@+id/week_bar_graph"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_marginBottom="8dp"
-        android:background="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/viewRowList" />
+    <Button
+        android:id="@+id/day_right"
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:onClick="addDay"
+        android:text="&gt;"
+        app:layout_constraintBaseline_toBaselineOf="@+id/day_label"
+        app:layout_constraintStart_toEndOf="@+id/day_label" />
+
+    <Button
+        android:id="@+id/month_left"
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:onClick="minusMonth"
+        android:text="&lt;"
+        app:layout_constraintBaseline_toBaselineOf="@+id/month_label"
+        app:layout_constraintEnd_toStartOf="@+id/month_label" />
+
+    <Button
+        android:id="@+id/month_right"
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_width="48dp"
+        android:layout_height="36dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:onClick="addMonth"
+        android:text="&gt;"
+        app:layout_constraintBaseline_toBaselineOf="@+id/month_label"
+        app:layout_constraintStart_toEndOf="@+id/month_label" />
+
+    <Button
+        android:id="@+id/day_left"
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:onClick="minusDay"
+        android:text="&lt;"
+        app:layout_constraintBaseline_toBaselineOf="@+id/day_label"
+        app:layout_constraintEnd_toStartOf="@+id/day_label" />
+
 
 </android.support.constraint.ConstraintLayout>
     </ScrollView>
