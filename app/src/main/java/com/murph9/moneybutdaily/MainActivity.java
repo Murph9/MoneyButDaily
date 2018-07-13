@@ -15,6 +15,7 @@ import com.murph9.moneybutdaily.model.Row;
 import net.danlew.android.joda.JodaTimeAndroid;
 import org.joda.time.DateTime;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,10 +47,10 @@ public class MainActivity extends AppCompatActivity {
 
         //My BarGraphs
         BarGraphView bgv = findViewById(R.id.day_bar_graph);
-        bgv.init(new LinkedList<BarGraphView.Bar>());
+        bgv.init(30); //color scale TODO based on 'goal' whenever that exists
 
         bgv = findViewById(R.id.month_bar_graph);
-        bgv.init(new LinkedList<BarGraphView.Bar>());
+        bgv.init(30*31); //color scale TODO 31?
 
         RowViewViewModel = ViewModelProviders.of(this).get(RowViewModel.class);
         RowViewViewModel.getAllRows().observe(this, new Observer<List<Row>>() {
@@ -59,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        dayGraphStart = new DateTime().minusDays(6);
-        monthGraphStart = new DateTime().minusDays(new DateTime().dayOfMonth().get() - 1).minusMonths(5);
+        dayGraphStart = new DateTime().minusDays(5).withTimeAtStartOfDay();
+        monthGraphStart = new DateTime().minusDays(new DateTime().dayOfMonth().get() - 1).minusMonths(4).withTimeAtStartOfDay();
     }
 
     private void setPageData(List<Row> rows) {
@@ -74,31 +75,53 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateGraphs() {
+        DateTime today = new DateTime().withTimeAtStartOfDay();
+
         //day graph
         String dayBarFormat = "MMM-d";
 
-        BarGraphView bgv = findViewById(R.id.day_bar_graph);
-        List<BarGraphView.Bar> bars = new LinkedList<>();
+        BarGraphView weekBgv = findViewById(R.id.day_bar_graph);
+        List<BarGraphView.Bar> weekBars = new LinkedList<>();
+        HashMap<BarGraphView.Bar, BarGraphView.SpecialBar> weekSpecials = new HashMap<>();
 
         for (int i = 0; i < 7; i++) {
             DateTime dt = dayGraphStart.plusDays(i);
             float totalToday = calc.TotalForDay(dt);
-            bars.add(new BarGraphView.Bar(totalToday, dt.toString(dayBarFormat)));
+            BarGraphView.Bar b = new BarGraphView.Bar(totalToday, dt.toString(dayBarFormat));
+            weekBars.add(b);
+
+            if (dt.compareTo(today) == 0) { //today
+                weekSpecials.put(b, BarGraphView.SpecialBar.Current);
+            } else if (dt.compareTo(today) > 0) { //after today
+                weekSpecials.put(b, BarGraphView.SpecialBar.Future);
+            }
         }
-        bgv.updateBars(bars);
+        weekBgv.updateBars(weekBars, weekSpecials);
 
         //month graph
         String monthBarFormat = "yy-MMM";
 
-        bgv = findViewById(R.id.month_bar_graph);
-        bars = new LinkedList<>();
+        BarGraphView monthBgv = findViewById(R.id.month_bar_graph);
+        List<BarGraphView.Bar> monthBars = new LinkedList<>();
+        HashMap<BarGraphView.Bar, BarGraphView.SpecialBar> monthSpecials = new HashMap<>();
 
         for (int i = 0; i < 7; i++) {
             DateTime dt = monthGraphStart.plusMonths(i);
-            float totalToday = calc.TotalForMonth(dt);
-            bars.add(new BarGraphView.Bar(totalToday, dt.toString(monthBarFormat)));
+            float totalMonth = calc.TotalForMonth(dt);
+
+            BarGraphView.Bar b = new BarGraphView.Bar(totalMonth, dt.toString(monthBarFormat));
+            monthBars.add(b);
+
+            //calc special
+            int month = dt.getMonthOfYear();
+            int year = dt.getYear();
+            if (month == today.getMonthOfYear() && year == today.getYear()) { //same month
+                monthSpecials.put(b, BarGraphView.SpecialBar.Current);
+            } else if (month > today.getMonthOfYear() && year >= today.getYear()) { //after this month
+                monthSpecials.put(b, BarGraphView.SpecialBar.Future);
+            }
         }
-        bgv.updateBars(bars);
+        monthBgv.updateBars(monthBars, monthSpecials);
     }
 
     @Override

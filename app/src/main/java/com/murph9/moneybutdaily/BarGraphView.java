@@ -9,21 +9,22 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.List;
 
 import static android.graphics.Color.rgb;
 
 public class BarGraphView extends View {
 
-    //TODO grouping labels?
-    //TODO some way of indicating a prediction, or 'this is today'
+    //TODO grouping month/week labels?
 
     private final DecimalFormat valueFormat = new DecimalFormat("#.##");
 
-    private Paint paint;
-    private float displayDensity;
-
+    private float colorScale;
+    private HashMap<Bar, SpecialBar> specialBars;
     private List<Bar> bars;
+
+    private Paint paint;
     private float minValue;
     private float maxValue;
 
@@ -35,6 +36,11 @@ public class BarGraphView extends View {
             this.value = value;
             this.label = label;
         }
+    }
+
+    public enum SpecialBar {
+        Future,
+        Current
     }
 
     public BarGraphView(Context context) {
@@ -53,15 +59,16 @@ public class BarGraphView extends View {
         this.paint = new Paint();
     }
 
-    public void init(List<Bar> bars) {
-        this.displayDensity = getResources().getDisplayMetrics().density;
+    public void init(float colorScale) {
+        this.colorScale = colorScale;
 
         this.paint.setStyle(Paint.Style.FILL);
         this.paint.setTextSize(getResources().getDisplayMetrics().scaledDensity * 17);
-
-        updateBars(bars);
     }
-    public void updateBars(List<Bar> bars) {
+
+    public void updateBars(List<Bar> bars, HashMap<Bar, SpecialBar> specials) {
+        this.specialBars = specials;
+
         this.bars = bars;
         this.maxValue = 0; //0 must be included
         this.minValue = 0;
@@ -102,7 +109,12 @@ public class BarGraphView extends View {
         int count = bars.size();
         for (int i = 0; i < count; i++) {
             Bar b = bars.get(i); //TODO hack, please actually work out how many to display
-            paint.setColor(getColor(b.value));
+
+            SpecialBar special = null;
+            if (specialBars != null && specialBars.containsKey(b))
+                special = specialBars.get(b);
+
+            paint.setColor(getColor(b.value, special));
             float barHeight = calcHeightPercentage(b.value, height);
             if (b.value > 0) {
                 canvas.drawRect(width * (1 - widthPercent) / 2 / count + width * (i) / count, barHeight, width * i / count + width * widthPercent / count, zeroPos, paint);
@@ -116,32 +128,38 @@ public class BarGraphView extends View {
             drawTextCenteredAt(canvas, paint, width*i/count + width*widthPercent/2/count, scaledDensity * 17 * 1.5f, bars.get(i).label, rgb(0,0,0));
         }
 
-        //draw the cross center line
+        //draw the 0 cross center line
         paint.setColor(rgb(0,0,0));
         paint.setStrokeWidth(2*scaledDensity);
         canvas.drawLine(0, zeroPos, width, zeroPos, paint);
-
-        //TODO draw text for the y axis labels
-        //canvas.drawText("0", zeroPos, 0, paint);
     }
 
 
     //NOTE: this only works if max is always pos, and min is always negative (or either is 0)
     private float calcHeightPercentage(float value, float height) {
-        if (maxValue - minValue == 0)
-            return 0.5f; //no x/0 here please
+        if (maxValue - minValue == 0) //no x/0 please
+            return height; //bottom by default
 
         return height*(maxValue - value)/(maxValue - minValue);
     }
 
-    private int getColor(float val) {
+    private int getColor(float val, SpecialBar special) {
         //very negative should be red (255,0,0)
         //very positive should be green (0,255,0)
         //yellow in the middle (255,255,0)
+        //see through when future
+
+        int alpha = 255;
+        if (special == SpecialBar.Current) {
+            alpha = 150;
+        } else if (special == SpecialBar.Future) {
+            alpha = 60;
+        }
+
         if (val >= 0) {
-            return Color.rgb((int)((Math.atan(-val/30)/Math.PI*2 + 1)*255), 255, 0);
+            return Color.argb(alpha, (int)((Math.atan(-val/colorScale)/Math.PI*2 + 1)*255), 255, 0);
         } else {
-            return Color.rgb(255, (int)((Math.atan(val/10)/Math.PI*2 + 1)*255), 0);
+            return Color.argb(alpha, 255, (int)((Math.atan(val/(colorScale/3))/Math.PI*2 + 1)*255), 0);
         }
     }
 

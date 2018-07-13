@@ -59,6 +59,8 @@ public class EditRowActivity extends AppCompatActivity {
         mEditIsIncomeView = findViewById(R.id.is_income);
         mEditIsRepeatView = findViewById(R.id.is_repeat);
 
+        mEditLengthTypeView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, DayType.CAN_SELECT));
+
         //read in the given fields (if any)
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
@@ -68,7 +70,7 @@ public class EditRowActivity extends AppCompatActivity {
 
             mEditAmountView.setText(editRow.Amount+"");
             mEditLengthCountView.setText(editRow.LengthCount+"");
-            mEditLengthTypeView.setSelection(editRow.LengthType.ordinal());
+            mEditLengthTypeView.setSelection(DayType.CAN_SELECT.indexOf(editRow.LengthType));
             mEditCategoryView.setText(editRow.Category);
             mEditIsIncomeView.setChecked(editRow.IsIncome);
             mEditIsRepeatView.setChecked(editRow.RepeatType != DayType.None);
@@ -82,8 +84,7 @@ public class EditRowActivity extends AppCompatActivity {
             deleteButton.setVisibility(View.GONE);
         }
 
-        mEditLengthTypeView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, DayType.CAN_SELECT));
-
+        //programmatically setting a button action
         final Button button = findViewById(R.id.button_save);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
