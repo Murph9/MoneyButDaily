@@ -35,10 +35,9 @@ public class EditRowActivity extends AppCompatActivity {
     private EditText mEditCategoryView;
     private CheckBox mEditIsIncomeView;
     private CheckBox mEditIsRepeatView;
-    //TODO repeat end time
 
-    //TODO remove?
     private DateTime From = new DateTime();
+    private DateTime RepeatEnd = new DateTime();
 
     private Row editRow;
     private final RowViewModel rowViewModel;
@@ -78,6 +77,13 @@ public class EditRowActivity extends AppCompatActivity {
             From = editRow.From;
             TextView startDate = findViewById(R.id.startDateValue);
             startDate.setText(From.toString(EditRowActivity.DATE_FORMAT));
+
+            if (editRow.RepeatEnd != null) {
+                RepeatEnd = editRow.RepeatEnd;
+                TextView repeatDate = findViewById(R.id.repeatDateValue);
+                repeatDate.setText(RepeatEnd.toString(EditRowActivity.DATE_FORMAT));
+            }
+
         } else {
             //remove the delete button, as its not usable on create
             Button deleteButton = findViewById(R.id.button_delete);
@@ -101,8 +107,8 @@ public class EditRowActivity extends AppCompatActivity {
                 row.IsIncome = mEditIsIncomeView.isChecked();
                 if (mEditIsRepeatView.isChecked()) {
                     row.RepeatCount = row.LengthCount;
-                    row.RepeatType = row.LengthType; //not supporting different lengths here
-                    //TODO repeat end
+                    row.RepeatType = row.LengthType; //we are not supporting different lengths here
+                    row.RepeatEnd = EditRowActivity.this.RepeatEnd;
                 }
 
                 String rowError = row.Validate();
@@ -146,18 +152,54 @@ public class EditRowActivity extends AppCompatActivity {
     }
 
     public void onFromDateClick(View view) {
-        DialogFragment frag = new DatePickerFragment();
+        DatePickerFragment frag = new DatePickerFragment();
+        frag.setCallback(new DatePickerCallback() {
+            @Override
+            public void setFields(DateTime date) {
+                EditRowActivity.this.From = date;
+                TextView startDate = EditRowActivity.this.findViewById(R.id.startDateValue);
+                startDate.setText(EditRowActivity.this.From.toString(EditRowActivity.DATE_FORMAT));
+            }
+        });
+
         Bundle args = new Bundle(1);
         args.putLong(EditRowActivity.DatePickerFragment.EXTRA_INPUT, From.getMillis());
+        frag.setArguments(args);
 
         frag.show(getFragmentManager(), "datePicker");
+    }
+
+    public void onRepeatDateClick(View view) {
+        DatePickerFragment frag = new DatePickerFragment();
+        frag.setCallback(new DatePickerCallback() {
+            @Override
+            public void setFields(DateTime date) {
+                EditRowActivity.this.RepeatEnd = date;
+                TextView repeatDate = EditRowActivity.this.findViewById(R.id.repeatDateValue);
+                repeatDate.setText(EditRowActivity.this.RepeatEnd.toString(EditRowActivity.DATE_FORMAT));
+            }
+        });
+
+        Bundle args = new Bundle(1);
+        args.putLong(EditRowActivity.DatePickerFragment.EXTRA_INPUT, RepeatEnd.getMillis());
+        frag.setArguments(args);
+
+        frag.show(getFragmentManager(), "datePicker");
+    }
+
+    public interface DatePickerCallback {
+        void setFields(DateTime date);
     }
 
     public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
         public static final String EXTRA_INPUT = "com.murph.moneybutdaily.DatePickerFragment.INPUT";
 
-        private EditRowActivity act;
         private DateTime inputDate;
+
+        private DatePickerCallback callback;
+        public void setCallback(DatePickerCallback callback) {
+            this.callback = callback;
+        }
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -176,18 +218,19 @@ public class EditRowActivity extends AppCompatActivity {
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            act = (EditRowActivity) getActivity();
-
             // Create a new instance of DatePickerDialog and return it
-            return new DatePickerDialog(act, this, this.inputDate.getYear(),
+            return new DatePickerDialog(getActivity(), this, this.inputDate.getYear(),
                     this.inputDate.getMonthOfYear() - 1, this.inputDate.getDayOfMonth());
         }
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
-            // Do something with the date chosen by the user
-            act.From = new DateTime(year,month + 1,day,0,0);
-            TextView startDate = act.findViewById(R.id.startDateValue);
-            startDate.setText(act.From.toString(EditRowActivity.DATE_FORMAT));
+            // Run the callback with the new date
+            callback.setFields(new DateTime(year,month + 1,day,0,0));
         }
+    }
+
+
+    public void onInfoButtonClick(View view) {
+        Toast.makeText(this, "Set the first day on the last repeat this row applies on. For example the last monday for a repeating week entry.", Toast.LENGTH_LONG).show();
     }
 }

@@ -91,6 +91,46 @@
             android:layout_height="wrap_content"
             android:text="Repeats" />
 
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/imageButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:adjustViewBounds="false"
+                android:cropToPadding="true"
+                android:onClick="onInfoButtonClick"
+                app:srcCompat="@android:drawable/ic_dialog_info" />
+
+            <TextView
+                android:id="@+id/repeatDateLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Repeat Until" />
+
+            <TextView
+                android:id="@+id/repeatDateValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="not set" />
+
+            <Button
+                android:id="@+id/setRepeatDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="onRepeatDateClick"
+                android:text="Set" />
+
+        </LinearLayout>
+
         <Button
             android:id="@+id/button_save"
             android:layout_width="match_parent"
