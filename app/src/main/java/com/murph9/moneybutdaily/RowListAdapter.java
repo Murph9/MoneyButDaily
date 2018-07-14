@@ -16,6 +16,7 @@ import com.murph9.moneybutdaily.model.Row;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.LinkedList;
 import java.util.List;
 
 //basically allows a dynamically updating list of entries
@@ -25,12 +26,13 @@ public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewH
     private final DateTimeFormatter fromFormat;
 
     private final LayoutInflater mInflater;
-    private List<Row> mRows; // Cached copy of rows
-    private final Context mCon;
     private RowListActivity activity;
 
+    private List<Row> fullRowList; // cached copy of rows
+    private List<Row> mRows; // visible cached copy of rows
+    private String categoryFilter; //filter which changes between the 2
+
     RowListAdapter(Context context) {
-        mCon = context;
         mInflater = LayoutInflater.from(context);
         fromFormat = DateTimeFormat.forPattern("yyy/MM/dd");
     }
@@ -71,16 +73,40 @@ public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewH
         }
     }
 
+    void setFilter(String filter) {
+        this.categoryFilter = filter;
+
+        filterList();
+    }
+
     void setRows(List<Row> rows){
-        mRows = rows;
+        fullRowList = rows;
+
+        filterList();
+    }
+
+    private void filterList() {
+        if (this.categoryFilter == null || this.categoryFilter.isEmpty())
+            mRows = fullRowList;
+        else {
+            mRows = new LinkedList<>();
+            for (Row r: this.fullRowList) {
+                if (r.Category.toLowerCase().contains(this.categoryFilter.toLowerCase())) //PERF
+                    mRows.add(r);
+            }
+        }
         notifyDataSetChanged();
+    }
+
+    List<Row> getRows() {
+        return fullRowList;
     }
 
     // getItemCount() is called many times, and when it is first called,
     // mRows has not been updated (means initially, it's null, and we can't return null).
     @Override
     public int getItemCount() {
-        if (mRows != null)
+        if (mRows != null) //TODO or fullRowList?
             return mRows.size();
         else return 0;
     }

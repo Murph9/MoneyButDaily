@@ -4,6 +4,7 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -144,6 +145,13 @@ public class Row {
     public String toString()
     {
         return Category + ": " + CalcPerDay();
+    }
+
+    public String toExportString() {
+        Object[] list = new Object[] { this.Amount, this.LengthCount, this.LengthType,
+                this.RepeatType == DayType.None, this.RepeatEnd, this.Category, this.Note };
+
+        return TextUtils.join(", ", list);
     }
 }
 

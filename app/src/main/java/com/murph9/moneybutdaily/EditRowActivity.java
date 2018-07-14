@@ -53,6 +53,7 @@ public class EditRowActivity extends AppCompatActivity {
 
         mEditAmountView = findViewById(R.id.edit_amount);
         mEditLengthCountView = findViewById(R.id.edit_lengthcount);
+        mEditLengthCountView.setText("1"); //hardcoded to start as 1
         mEditLengthTypeView = findViewById(R.id.edit_lengthtype);
         mEditCategoryView = findViewById(R.id.edit_category);
         mEditIsIncomeView = findViewById(R.id.is_income);
