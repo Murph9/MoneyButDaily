@@ -69,7 +69,7 @@ public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewH
             });
         } else {
             // Covers the case of data not being ready yet.
-            holder.rowItem_StartDate.setText("No Row found");
+            holder.rowItem_StartDate.setText("No Rows found");
         }
     }
 
@@ -95,6 +95,7 @@ public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewH
                     mRows.add(r);
             }
         }
+        //TODO sort mRows
         notifyDataSetChanged();
     }
 

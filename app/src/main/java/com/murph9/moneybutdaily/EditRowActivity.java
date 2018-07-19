@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -23,7 +24,6 @@ import com.murph9.moneybutdaily.model.Row;
 
 import org.joda.time.DateTime;
 
-
 public class EditRowActivity extends AppCompatActivity {
 
     public static final String EXTRA_LINE = "com.murph.moneybutdaily.Line";
@@ -32,9 +32,10 @@ public class EditRowActivity extends AppCompatActivity {
     private EditText mEditAmountView;
     private EditText mEditLengthCountView;
     private Spinner mEditLengthTypeView;
-    private EditText mEditCategoryView;
+    private AutoCompleteTextView mEditCategoryView;
     private CheckBox mEditIsIncomeView;
     private CheckBox mEditIsRepeatView;
+    private EditText mEditNotesView;
 
     private DateTime From = new DateTime();
     private DateTime RepeatEnd = new DateTime();
@@ -56,8 +57,13 @@ public class EditRowActivity extends AppCompatActivity {
         mEditLengthCountView.setText("1"); //hardcoded to start as 1
         mEditLengthTypeView = findViewById(R.id.edit_lengthtype);
         mEditCategoryView = findViewById(R.id.edit_category);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, MainActivity.getCalc().GetCategories());
+        mEditCategoryView.setAdapter(adapter);
+
         mEditIsIncomeView = findViewById(R.id.is_income);
         mEditIsRepeatView = findViewById(R.id.is_repeat);
+
+        mEditNotesView = findViewById(R.id.edit_notes);
 
         mEditLengthTypeView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, DayType.CAN_SELECT));
 
@@ -74,6 +80,7 @@ public class EditRowActivity extends AppCompatActivity {
             mEditCategoryView.setText(editRow.Category);
             mEditIsIncomeView.setChecked(editRow.IsIncome);
             mEditIsRepeatView.setChecked(editRow.RepeatType != DayType.None);
+            mEditNotesView.setText(editRow.Note);
 
             From = editRow.From;
             TextView startDate = findViewById(R.id.startDateValue);
@@ -89,6 +96,15 @@ public class EditRowActivity extends AppCompatActivity {
             //remove the delete button, as its not usable on create
             Button deleteButton = findViewById(R.id.button_delete);
             deleteButton.setVisibility(View.GONE);
+
+            //also set today as the default From
+            From = new DateTime();
+        }
+
+        //update the text box for the date
+        if (From != null) {
+            TextView startDate = findViewById(R.id.startDateValue);
+            startDate.setText(From.toString(EditRowActivity.DATE_FORMAT));
         }
 
         //programmatically setting a button action
@@ -104,13 +120,14 @@ public class EditRowActivity extends AppCompatActivity {
 
                 row.LengthCount = Integer.parseInt(mEditLengthCountView.getText().toString());
                 row.LengthType = DayType.valueOf(DayType.class, mEditLengthTypeView.getSelectedItem().toString());
-                row.Category = mEditCategoryView.getText().toString();
+                row.Category = mEditCategoryView.getText().toString().trim();
                 row.IsIncome = mEditIsIncomeView.isChecked();
                 if (mEditIsRepeatView.isChecked()) {
                     row.RepeatCount = row.LengthCount;
-                    row.RepeatType = row.LengthType; //we are not supporting different lengths here
+                    row.RepeatType = row.LengthType; //we are not supporting different lengths and repeat lengths here
                     row.RepeatEnd = EditRowActivity.this.RepeatEnd;
                 }
+                row.Note = mEditNotesView.getText().toString().trim();
 
                 String rowError = row.Validate();
                 if (rowError != null) {
@@ -168,6 +185,10 @@ public class EditRowActivity extends AppCompatActivity {
         frag.setArguments(args);
 
         frag.show(getFragmentManager(), "datePicker");
+    }
+
+    public void onInfoButtonClick(View view) {
+        Toast.makeText(this, "Set the first day on the last repeat this row applies on. For example the last monday for a repeating week entry.", Toast.LENGTH_LONG).show();
     }
 
     public void onRepeatDateClick(View view) {
@@ -228,10 +249,5 @@ public class EditRowActivity extends AppCompatActivity {
             // Run the callback with the new date
             callback.setFields(new DateTime(year,month + 1,day,0,0));
         }
-    }
-
-
-    public void onInfoButtonClick(View view) {
-        Toast.makeText(this, "Set the first day on the last repeat this row applies on. For example the last monday for a repeating week entry.", Toast.LENGTH_LONG).show();
     }
 }

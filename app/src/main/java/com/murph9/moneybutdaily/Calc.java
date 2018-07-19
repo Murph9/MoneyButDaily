@@ -15,7 +15,7 @@ import java.util.Map;
 public class Calc {
     private final List<Range> _dayRanges = new LinkedList<>();
     private final List<String> _categories = new LinkedList<>();
-    public Collection<String> GetCategories()
+    public List<String> GetCategories()
     {
         return _categories;
     }

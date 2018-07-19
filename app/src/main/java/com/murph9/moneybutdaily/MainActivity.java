@@ -34,7 +34,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int ROW_LIST_ACTIVITY_REQUEST_CODE = 3;
     public static RowViewModel RowViewViewModel;
 
-    public Calc calc;
+    private static Calc calc;
+    public static Calc getCalc() { return calc; }
     private DateTime dayGraphStart;
     private DateTime monthGraphStart;
 
