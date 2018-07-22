@@ -27,7 +27,7 @@ import org.joda.time.DateTime;
 public class EditRowActivity extends AppCompatActivity {
 
     public static final String EXTRA_LINE = "com.murph.moneybutdaily.Line";
-    public static final String DATE_FORMAT = "yyyy/MM/dd";
+    public static final String VIEW_DATE_FORMAT = "yyyy/MM/dd";
 
     private EditText mEditAmountView;
     private EditText mEditLengthCountView;
@@ -84,27 +84,24 @@ public class EditRowActivity extends AppCompatActivity {
 
             From = editRow.From;
             TextView startDate = findViewById(R.id.startDateValue);
-            startDate.setText(From.toString(EditRowActivity.DATE_FORMAT));
+            startDate.setText(From.toString(EditRowActivity.VIEW_DATE_FORMAT));
 
             if (editRow.RepeatEnd != null) {
                 RepeatEnd = editRow.RepeatEnd;
                 TextView repeatDate = findViewById(R.id.repeatDateValue);
-                repeatDate.setText(RepeatEnd.toString(EditRowActivity.DATE_FORMAT));
+                repeatDate.setText(RepeatEnd.toString(EditRowActivity.VIEW_DATE_FORMAT));
             }
 
         } else {
             //remove the delete button, as its not usable on create
             Button deleteButton = findViewById(R.id.button_delete);
             deleteButton.setVisibility(View.GONE);
-
-            //also set today as the default From
-            From = new DateTime();
         }
 
         //update the text box for the date
         if (From != null) {
             TextView startDate = findViewById(R.id.startDateValue);
-            startDate.setText(From.toString(EditRowActivity.DATE_FORMAT));
+            startDate.setText(From.toString(EditRowActivity.VIEW_DATE_FORMAT));
         }
 
         //programmatically setting a button action
@@ -116,7 +113,9 @@ public class EditRowActivity extends AppCompatActivity {
                 if (editRow != null)
                     row.Line = editRow.Line;
                 row.Amount = Float.parseFloat(mEditAmountView.getText().toString());
-                row.From = EditRowActivity.this.From;
+                row.From = new DateTime(EditRowActivity.this.From.year().get(),
+                        EditRowActivity.this.From.monthOfYear().get(),
+                        EditRowActivity.this.From.dayOfMonth().get(), 0, 0); //remove time information
 
                 row.LengthCount = Integer.parseInt(mEditLengthCountView.getText().toString());
                 row.LengthType = DayType.valueOf(DayType.class, mEditLengthTypeView.getSelectedItem().toString());
@@ -132,6 +131,7 @@ public class EditRowActivity extends AppCompatActivity {
                 String rowError = row.Validate();
                 if (rowError != null) {
                     Toast.makeText(view.getContext(), "Error in row: " + rowError, Toast.LENGTH_LONG).show();
+                    return;
                 } else {
                     if (EditRowActivity.this.editRow != null) {
                         EditRowActivity.this.rowViewModel.update(row);
@@ -176,7 +176,7 @@ public class EditRowActivity extends AppCompatActivity {
             public void setFields(DateTime date) {
                 EditRowActivity.this.From = date;
                 TextView startDate = EditRowActivity.this.findViewById(R.id.startDateValue);
-                startDate.setText(EditRowActivity.this.From.toString(EditRowActivity.DATE_FORMAT));
+                startDate.setText(EditRowActivity.this.From.toString(EditRowActivity.VIEW_DATE_FORMAT));
             }
         });
 
@@ -198,7 +198,7 @@ public class EditRowActivity extends AppCompatActivity {
             public void setFields(DateTime date) {
                 EditRowActivity.this.RepeatEnd = date;
                 TextView repeatDate = EditRowActivity.this.findViewById(R.id.repeatDateValue);
-                repeatDate.setText(EditRowActivity.this.RepeatEnd.toString(EditRowActivity.DATE_FORMAT));
+                repeatDate.setText(EditRowActivity.this.RepeatEnd.toString(EditRowActivity.VIEW_DATE_FORMAT));
             }
         });
 

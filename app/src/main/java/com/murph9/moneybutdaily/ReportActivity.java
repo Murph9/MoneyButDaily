@@ -2,10 +2,14 @@ package com.murph9.moneybutdaily;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,17 +22,23 @@ import java.util.Map;
 
 public class ReportActivity extends AppCompatActivity {
 
-    private final int TAB_TODAY = 0;
+    private final int TAB_DAY = 0;
     private final int TAB_WEEK = 1;
     private final int TAB_MONTH = 2;
+    private final int TAB_YEAR = 3;
 
-    private int tabId = TAB_TODAY;
+    private int tabId = TAB_DAY;
+    private DateTime date;
     private Calc calc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report);
+
+        //init to today
+        //TODO prevent future?
+        date = new DateTime();
 
         RowViewModel mRowViewViewModel = ViewModelProviders.of(this).get(RowViewModel.class);
         mRowViewViewModel.getAllRows().observe(this, new Observer<List<Row>>() {
@@ -46,9 +56,7 @@ public class ReportActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
+            public void onTabUnselected(TabLayout.Tab tab) { }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
@@ -57,14 +65,38 @@ public class ReportActivity extends AppCompatActivity {
         });
     }
 
+    private DateTime getNextDate(DateTime date) {
+        return getNewDate(date, 1);
+    }
+    private DateTime getPrevDate(DateTime date) {
+        return getNewDate(date, -1);
+    }
+    private DateTime getNewDate(DateTime date, int mod) {
+        switch (this.tabId) {
+            case TAB_DAY:
+                return date.plusDays(mod);
+            case TAB_WEEK:
+                return date.plusWeeks(mod);
+            case TAB_MONTH:
+                return date.plusMonths(mod);
+            case TAB_YEAR:
+                return date.plusYears(mod);
+            default:
+                Toast.makeText(this, "Invalid tab selected", Toast.LENGTH_SHORT);
+                return date;
+        }
+    }
+
     private Map<String, Float> getReportData() {
         switch (this.tabId) {
-            case TAB_TODAY:
-                return calc.ReportForDay(new DateTime());
+            case TAB_DAY:
+                return calc.ReportForDay(this.date);
             case TAB_WEEK:
-                return calc.ReportForWeek(new DateTime());
+                return calc.ReportForWeek(this.date);
             case TAB_MONTH:
-                return calc.ReportForMonth(new DateTime());
+                return calc.ReportForMonth(this.date);
+            case TAB_YEAR:
+                return calc.ReportForYear(this.date);
             default:
                 Toast.makeText(this, "Invalid tab selected", Toast.LENGTH_SHORT);
                 return null;
@@ -73,23 +105,83 @@ public class ReportActivity extends AppCompatActivity {
 
     private void setPageData(List<Row> rows) {
         calc = new Calc(rows);
-
-        updateData();
+        updatePage();
     }
 
-    private void updateData() {
-        String str = "";
+    private void updatePage() {
+        //update the value at the top
+        TextView date = findViewById(R.id.text_today);
+        date.setText(this.date.toString(EditRowActivity.VIEW_DATE_FORMAT));
+
+        //update report
+        TableLayout reportView = findViewById(R.id.report_table);
+        reportView.removeAllViews();
+
+        //header row
+        addRow(this, reportView, "Category", "Value");
+        addRow(this, reportView, "", "");
+
         Map<String, Float> report = getReportData();
-        for (String key: report.keySet()) {
-            str += key + ": $" + report.get(key).toString() + System.getProperty("line.separator");
+        float incomeTotal = 0;
+        //first only the income rows
+        for (Map.Entry<String, Float> entry: report.entrySet()) {
+            if (entry.getValue() < 0)
+                continue;
+
+            incomeTotal += entry.getValue();
+            addRow(this, reportView, entry.getKey(), entry.getValue().toString());
         }
 
-        TextView reportText = findViewById(R.id.report_textview);
-        reportText.setText(str);
+        addRow(this, reportView, "______", "______");
+        addRow(this, reportView, "Total", incomeTotal+"");
+        addRow(this, reportView, "", "");
+
+        //expenses
+        float expensesTotal = 0;
+        for (Map.Entry<String, Float> entry: report.entrySet()) {
+            if (entry.getValue() >= 0)
+                continue;
+            expensesTotal += entry.getValue();
+            addRow(this, reportView, entry.getKey(), entry.getValue().toString());
+        }
+
+        addRow(this, reportView, "______", "______");
+        addRow(this, reportView, "Total", expensesTotal+"");
+        addRow(this, reportView, "", "");
+
+        addRow(this, reportView, "Full Total", (expensesTotal + incomeTotal) +"");
+    }
+
+    private void addRow(Context context, TableLayout tl, String cat, String value) {
+        TableRow tr = new TableRow(context);
+
+        TextView view_cat = new TextView(context);
+        view_cat.setText(cat);
+        tr.addView(view_cat);
+
+        TextView view_value = new TextView(context);
+        view_value.setText(value);
+        tr.addView(view_value);
+
+        tl.addView(tr);
     }
 
     private void setTabId(int id) {
         this.tabId = id;
-        updateData();
+
+        //new report type selected, reset to today
+        this.date = new DateTime();
+
+        updatePage();
+    }
+
+
+    public void nextDate(View view) {
+        this.date = getNextDate(this.date);
+        updatePage();
+    }
+    public void prevDate(View view) {
+        this.date = getPrevDate(this.date);
+        updatePage();
     }
 }

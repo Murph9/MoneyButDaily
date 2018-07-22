@@ -16,6 +16,8 @@ import com.murph9.moneybutdaily.model.Row;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -91,11 +93,19 @@ public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewH
         else {
             mRows = new LinkedList<>();
             for (Row r: this.fullRowList) {
-                if (r.Category.toLowerCase().contains(this.categoryFilter.toLowerCase())) //PERF
+                if (r.Category.toLowerCase().contains(this.categoryFilter.toLowerCase())) //PERF ??
                     mRows.add(r);
             }
         }
-        //TODO sort mRows
+
+        //sort mRows by most recent
+        Collections.sort(mRows, new Comparator<Row>() {
+            @Override
+            public int compare(Row o1, Row o2) {
+                return o1.From.compareTo(o2.From)*-1; //most recent first
+            }
+        });
+
         notifyDataSetChanged();
     }
 
