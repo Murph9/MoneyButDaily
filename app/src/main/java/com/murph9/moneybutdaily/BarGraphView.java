@@ -3,6 +3,7 @@ package com.murph9.moneybutdaily;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
@@ -19,6 +20,7 @@ public class BarGraphView extends View {
     //TODO grouping month/week labels?
 
     private final DecimalFormat valueFormat = new DecimalFormat("#.##");
+    private final DashPathEffect currentDash = new DashPathEffect(new float[] {10,10}, 5);
 
     private float colorScale;
     private HashMap<Bar, SpecialBar> specialBars;
@@ -82,6 +84,8 @@ public class BarGraphView extends View {
             minValue = Math.min(minValue, b.value);
         }
 
+        //TODO round max and min to nearest 'nice' value so the bars aren't at the top of the graph
+
         this.invalidate();
     }
 
@@ -121,6 +125,18 @@ public class BarGraphView extends View {
             } else {
                 canvas.drawRect(width * (1 - widthPercent) / 2 / count + width * (i) / count, zeroPos, width * i / count + width * widthPercent / count, barHeight, paint);
             }
+
+            if (special == SpecialBar.Current) {
+                //draw today dashed as a highlight
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeWidth(4); //TODO based on density please
+                paint.setColor(rgb(0,0,0));
+                paint.setPathEffect(currentDash);
+                canvas.drawRect(width * (1 - widthPercent) / 2 / count + width * (i) / count, 0, width * i / count + width * widthPercent / count, height, paint);
+
+                paint.setStyle(Paint.Style.FILL);
+            }
+
             //value
             drawTextCenteredAt(canvas, paint, width*i/count + width*widthPercent/2/count, Math.max(scaledDensity * 17 * 2.5f, barHeight), valueFormat.format(bars.get(i).value), rgb(0,0,0));
 
@@ -151,9 +167,9 @@ public class BarGraphView extends View {
 
         int alpha = 255;
         if (special == SpecialBar.Current) {
-            alpha = 150;
+            //nothing special anymore
         } else if (special == SpecialBar.Future) {
-            alpha = 60;
+            alpha = 80;
         }
 
         if (val >= 0) {
