@@ -28,12 +28,9 @@ import com.murph9.moneybutdaily.model.Row;
 
 import org.joda.time.DateTime;
 
-import java.text.DecimalFormat;
-
 public class EditRowActivity extends AppCompatActivity {
 
     public static final String EXTRA_LINE = "com.murph.moneybutdaily.Line";
-    public static final String VIEW_DATE_FORMAT = "yyyy/MM/dd";
 
     private EditText mEditAmountView;
     private EditText mEditLengthCountView;
@@ -94,12 +91,12 @@ public class EditRowActivity extends AppCompatActivity {
 
             From = editRow.From;
             TextView startDate = findViewById(R.id.startDateValue);
-            startDate.setText(From.toString(EditRowActivity.VIEW_DATE_FORMAT));
+            startDate.setText(From.toString(H.VIEW_YMD_FORMAT));
 
             if (editRow.RepeatEnd != null) {
                 RepeatEnd = editRow.RepeatEnd;
                 TextView repeatDate = findViewById(R.id.repeatDateValue);
-                repeatDate.setText(RepeatEnd.toString(EditRowActivity.VIEW_DATE_FORMAT));
+                repeatDate.setText(RepeatEnd.toString(H.VIEW_YMD_FORMAT));
             }
 
         } else {
@@ -111,7 +108,7 @@ public class EditRowActivity extends AppCompatActivity {
         //update the text box for the date
         if (From != null) {
             TextView startDate = findViewById(R.id.startDateValue);
-            startDate.setText(From.toString(EditRowActivity.VIEW_DATE_FORMAT));
+            startDate.setText(From.toString(H.VIEW_YMD_FORMAT));
         }
 
         //programmatically setting a button action
@@ -234,7 +231,7 @@ public class EditRowActivity extends AppCompatActivity {
             public void setFields(DateTime date) {
                 EditRowActivity.this.From = date;
                 TextView startDate = EditRowActivity.this.findViewById(R.id.startDateValue);
-                startDate.setText(EditRowActivity.this.From.toString(EditRowActivity.VIEW_DATE_FORMAT));
+                startDate.setText(EditRowActivity.this.From.toString(H.VIEW_YMD_FORMAT));
             }
         });
 
@@ -256,7 +253,7 @@ public class EditRowActivity extends AppCompatActivity {
             public void setFields(DateTime date) {
                 EditRowActivity.this.RepeatEnd = date;
                 TextView repeatDate = EditRowActivity.this.findViewById(R.id.repeatDateValue);
-                repeatDate.setText(EditRowActivity.this.RepeatEnd.toString(EditRowActivity.VIEW_DATE_FORMAT));
+                repeatDate.setText(EditRowActivity.this.RepeatEnd.toString(H.VIEW_YMD_FORMAT));
             }
         });
 

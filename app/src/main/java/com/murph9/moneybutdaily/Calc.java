@@ -139,7 +139,7 @@ public class Calc {
     public Map<String, Float> ReportForWeek(DateTime day)
     {
         //get start day of the week (monday)
-        day = day.weekOfWeekyear().roundFloorCopy();
+        day = H.startOfWeek(day);
 
         Map<String, Float> dict = ReportForDay(day);
 
@@ -166,7 +166,7 @@ public class Calc {
     public Map<String, Float> ReportForMonth(DateTime day)
     {
         //get the start of the month
-        day = day.monthOfYear().roundFloorCopy();
+        day = H.startOfMonth(day);
 
         Map<String, Float> dict = ReportForDay(day);
 
@@ -189,11 +189,11 @@ public class Calc {
         return dict;
     }
 
-    //PERF: really slow (causes way too many maps)
+    //PERF: really slow (probably causes way too many map<>s)
     public Map<String, Float> ReportForYear(DateTime day)
     {
         //get the start of the year
-        day = day.dayOfYear().roundFloorCopy();
+        day = H.startOfYear(day);
 
         int year = day.getYear();
         Map<String, Float> dict = ReportForMonth(day);

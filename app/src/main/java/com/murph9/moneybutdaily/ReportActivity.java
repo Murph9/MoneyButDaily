@@ -13,6 +13,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.Row;
 
 import org.joda.time.DateTime;
@@ -29,6 +30,8 @@ public class ReportActivity extends AppCompatActivity {
 
     private int tabId = TAB_DAY;
     private DateTime date;
+    private DayType type = DayType.None;
+
     private Calc calc;
 
     @Override
@@ -39,6 +42,7 @@ public class ReportActivity extends AppCompatActivity {
         //init to today
         //TODO prevent future?
         date = new DateTime();
+        type = DayType.Day;
 
         RowViewModel mRowViewViewModel = ViewModelProviders.of(this).get(RowViewModel.class);
         mRowViewViewModel.getAllRows().observe(this, new Observer<List<Row>>() {
@@ -109,9 +113,27 @@ public class ReportActivity extends AppCompatActivity {
     }
 
     private void updatePage() {
+        //update type
+        switch (this.tabId) {
+            case TAB_DAY:
+                this.type = DayType.Day;
+                break;
+            case TAB_WEEK:
+                this.type = DayType.Week;
+                break;
+            case TAB_MONTH:
+                this.type = DayType.Month;
+                break;
+            case TAB_YEAR:
+                this.type = DayType.Year;
+                break;
+            default:
+                Toast.makeText(this, "Invalid tab selected", Toast.LENGTH_SHORT).show();
+        }
+
         //update the value at the top
         TextView date = findViewById(R.id.text_today);
-        date.setText(this.date.toString(EditRowActivity.VIEW_DATE_FORMAT));
+        date.setText(H.dateRangeFor(this.date, this.type));
 
         //update report
         TableLayout reportView = findViewById(R.id.report_table);

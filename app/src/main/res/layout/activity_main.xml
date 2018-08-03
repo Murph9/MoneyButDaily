@@ -25,7 +25,7 @@
         android:id="@+id/todayText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TODO"
+        android:text="@string/todo"
         app:layout_constraintBaseline_toBaselineOf="@+id/add_button"
         app:layout_constraintEnd_toStartOf="@+id/add_button"
         app:layout_constraintHorizontal_bias="0.5"
@@ -68,7 +68,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Day"
+        android:text="@string/day"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/add_button" />
@@ -78,7 +78,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Month"
+        android:text="@string/month"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/day_bar_graph" />
