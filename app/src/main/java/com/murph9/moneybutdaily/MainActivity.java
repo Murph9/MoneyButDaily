@@ -15,6 +15,7 @@ import com.murph9.moneybutdaily.model.Row;
 import net.danlew.android.joda.JodaTimeAndroid;
 import org.joda.time.DateTime;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
         float todayValue = calc.TotalForDay(new DateTime());
         TextView todayText = findViewById(R.id.todayText);
-        todayText.setText(""+todayValue);
+        todayText.setText(H.to2Places(todayValue));
 
         updateGraphs();
     }

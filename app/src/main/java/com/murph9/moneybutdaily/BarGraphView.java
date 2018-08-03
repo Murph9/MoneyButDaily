@@ -19,8 +19,7 @@ public class BarGraphView extends View {
 
     //TODO grouping month/week labels?
 
-    private final DecimalFormat valueFormat = new DecimalFormat("#.##");
-    private final DashPathEffect currentDash = new DashPathEffect(new float[] {10,10}, 5);
+    private static final DashPathEffect currentDash = new DashPathEffect(new float[] {10,10}, 5);
 
     private float colorScale;
     private HashMap<Bar, SpecialBar> specialBars;
@@ -138,7 +137,7 @@ public class BarGraphView extends View {
             }
 
             //value
-            drawTextCenteredAt(canvas, paint, width*i/count + width*widthPercent/2/count, Math.max(scaledDensity * 17 * 2.5f, barHeight), valueFormat.format(bars.get(i).value), rgb(0,0,0));
+            drawTextCenteredAt(canvas, paint, width*i/count + width*widthPercent/2/count, Math.max(scaledDensity * 17 * 2.5f, barHeight), H.to2Places(bars.get(i).value), rgb(0,0,0));
 
             //label
             drawTextCenteredAt(canvas, paint, width*i/count + width*widthPercent/2/count, scaledDensity * 17 * 1.5f, bars.get(i).label, rgb(0,0,0));
