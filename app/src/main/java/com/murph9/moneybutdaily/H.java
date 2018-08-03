@@ -5,6 +5,11 @@ import com.murph9.moneybutdaily.model.DayType;
 import org.joda.time.DateTime;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 public class H {
 
@@ -50,5 +55,24 @@ public class H {
     }
     public static int floorWithFactor(float value, int factor) {
         return (int)Math.floor(value/(float)factor)*factor;
+    }
+
+    //https://stackoverflow.com/a/11648106/9353639
+    public static <K,V extends Comparable<? super V>> List<Map.Entry<K, V>> entriesSortedByValue(Map<K,V> map, final boolean desc) {
+
+        List<Map.Entry<K,V>> sortedEntries = new ArrayList<>(map.entrySet());
+
+        Collections.sort(sortedEntries,
+                new Comparator<Map.Entry<K,V>>() {
+                    @Override
+                    public int compare(Map.Entry<K,V> e1, Map.Entry<K,V> e2) {
+                        if (desc)
+                            return e2.getValue().compareTo(e1.getValue());
+                        else
+                            return e1.getValue().compareTo(e2.getValue());
+                    }
+                }
+        );
+        return sortedEntries;
     }
 }

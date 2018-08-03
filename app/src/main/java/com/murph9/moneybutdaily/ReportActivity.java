@@ -86,7 +86,7 @@ public class ReportActivity extends AppCompatActivity {
             case TAB_YEAR:
                 return date.plusYears(mod);
             default:
-                Toast.makeText(this, "Invalid tab selected", Toast.LENGTH_SHORT);
+                Toast.makeText(this, "Invalid tab selected", Toast.LENGTH_SHORT).show();
                 return date;
         }
     }
@@ -102,7 +102,7 @@ public class ReportActivity extends AppCompatActivity {
             case TAB_YEAR:
                 return calc.ReportForYear(this.date);
             default:
-                Toast.makeText(this, "Invalid tab selected", Toast.LENGTH_SHORT);
+                Toast.makeText(this, "Invalid tab selected", Toast.LENGTH_SHORT).show();
                 return null;
         }
     }
@@ -129,6 +129,7 @@ public class ReportActivity extends AppCompatActivity {
                 break;
             default:
                 Toast.makeText(this, "Invalid tab selected", Toast.LENGTH_SHORT).show();
+                return;
         }
 
         //update the value at the top
@@ -145,33 +146,36 @@ public class ReportActivity extends AppCompatActivity {
 
         Map<String, Float> report = getReportData();
         float incomeTotal = 0;
-        //first only the income rows
-        for (Map.Entry<String, Float> entry: report.entrySet()) {
-            if (entry.getValue() < 0)
-                continue;
+        if (report != null) {
+            //first only the income rows
+            for (Map.Entry<String, Float> entry : H.entriesSortedByValue(report, true)) {
+                if (entry.getValue() < 0)
+                    continue;
 
-            incomeTotal += entry.getValue();
-            addRow(this, reportView, entry.getKey(), entry.getValue().toString());
+                incomeTotal += entry.getValue();
+                addRow(this, reportView, entry.getKey(), H.to2Places(entry.getValue()));
+            }
         }
 
         addRow(this, reportView, "______", "______");
-        addRow(this, reportView, "Total", incomeTotal+"");
+        addRow(this, reportView, "Total", H.to2Places(incomeTotal));
         addRow(this, reportView, "", "");
-
-        //expenses
         float expensesTotal = 0;
-        for (Map.Entry<String, Float> entry: report.entrySet()) {
-            if (entry.getValue() >= 0)
-                continue;
-            expensesTotal += entry.getValue();
-            addRow(this, reportView, entry.getKey(), entry.getValue().toString());
+        if (report != null) {
+            //then next the expenses
+            for (Map.Entry<String, Float> entry : H.entriesSortedByValue(report, false)) {
+                if (entry.getValue() >= 0)
+                    continue;
+                expensesTotal += entry.getValue();
+                addRow(this, reportView, entry.getKey(), H.to2Places(entry.getValue()));
+            }
         }
 
         addRow(this, reportView, "______", "______");
-        addRow(this, reportView, "Total", expensesTotal+"");
+        addRow(this, reportView, "Total", H.to2Places(expensesTotal));
         addRow(this, reportView, "", "");
 
-        addRow(this, reportView, "Full Total", (expensesTotal + incomeTotal) +"");
+        addRow(this, reportView, "Full Total", H.to2Places(expensesTotal + incomeTotal) +"");
     }
 
     private void addRow(Context context, TableLayout tl, String cat, String value) {
@@ -184,6 +188,7 @@ public class ReportActivity extends AppCompatActivity {
         TextView view_value = new TextView(context);
         view_value.setText(value);
         tr.addView(view_value);
+        //TODO align text right
 
         tl.addView(tr);
     }
