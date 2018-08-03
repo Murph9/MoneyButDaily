@@ -86,7 +86,10 @@ public class Row {
     }
 
     public float CalcPerDay() {
-        return (IsIncome ? Amount : -Amount) / Days.daysBetween(From, CalcFirstPeriodEndDay()).getDays();
+        int days = Days.daysBetween(From, CalcFirstPeriodEndDay()).getDays();
+        if (days <= 0)
+            days = 1; //if no days 'assume' its 1 day
+        return (IsIncome ? Amount : -Amount) / days;
     }
 
     public DateTime CalcFirstPeriodEndDay() {
