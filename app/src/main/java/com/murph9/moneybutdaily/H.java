@@ -22,4 +22,11 @@ public class H {
     public static String to2Places(float value) {
         return valueFormat.format(value);
     }
+
+    public static int ceilWithFactor(float value, int factor) {
+        return (int)Math.ceil(value/(float)factor)*factor;
+    }
+    public static int floorWithFactor(float value, int factor) {
+        return (int)Math.floor(value/(float)factor)*factor;
+    }
 }

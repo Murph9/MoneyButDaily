@@ -9,7 +9,6 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
 
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 
@@ -21,7 +20,7 @@ public class BarGraphView extends View {
 
     private static final DashPathEffect currentDash = new DashPathEffect(new float[] {10,10}, 5);
 
-    private float colorScale;
+    private float scale;
     private HashMap<Bar, SpecialBar> specialBars;
     private List<Bar> bars;
 
@@ -60,8 +59,8 @@ public class BarGraphView extends View {
         this.paint = new Paint();
     }
 
-    public void init(float colorScale) {
-        this.colorScale = colorScale;
+    public void init(float scale) {
+        this.scale = scale;
 
         this.paint.setStyle(Paint.Style.FILL);
         this.paint.setTextSize(getResources().getDisplayMetrics().scaledDensity * 17);
@@ -83,7 +82,10 @@ public class BarGraphView extends View {
             minValue = Math.min(minValue, b.value);
         }
 
-        //TODO round max and min to nearest 'nice' value so the bars aren't at the top of the graph
+        //round max and min to nearest 'nice' value so the bars aren't at the top of the graph
+        //NOTE: isn't really noticeable
+        maxValue = H.ceilWithFactor(maxValue, (int)scale);
+        minValue = H.floorWithFactor(minValue, (int)scale);
 
         this.invalidate();
     }
@@ -172,9 +174,9 @@ public class BarGraphView extends View {
         }
 
         if (val >= 0) {
-            return Color.argb(alpha, (int)((Math.atan(-val/colorScale)/Math.PI*2 + 1)*255), 255, 0);
+            return Color.argb(alpha, (int)((Math.atan(-val/ scale)/Math.PI*2 + 1)*255), 255, 0);
         } else {
-            return Color.argb(alpha, 255, (int)((Math.atan(val/(colorScale/3))/Math.PI*2 + 1)*255), 0);
+            return Color.argb(alpha, 255, (int)((Math.atan(val/(scale /3))/Math.PI*2 + 1)*255), 0);
         }
     }
 
