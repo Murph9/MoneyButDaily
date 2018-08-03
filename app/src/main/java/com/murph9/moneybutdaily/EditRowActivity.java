@@ -8,11 +8,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -23,6 +27,8 @@ import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.Row;
 
 import org.joda.time.DateTime;
+
+import java.text.DecimalFormat;
 
 public class EditRowActivity extends AppCompatActivity {
 
@@ -36,6 +42,8 @@ public class EditRowActivity extends AppCompatActivity {
     private CheckBox mEditIsIncomeView;
     private CheckBox mEditIsRepeatView;
     private EditText mEditNotesView;
+
+    private TextView mValuePerDay;
 
     private DateTime From = new DateTime();
     private DateTime RepeatEnd = new DateTime();
@@ -56,6 +64,8 @@ public class EditRowActivity extends AppCompatActivity {
         mEditLengthCountView = findViewById(R.id.edit_lengthcount);
         mEditLengthCountView.setText("1"); //hardcoded to start as 1
         mEditLengthTypeView = findViewById(R.id.edit_lengthtype);
+        mValuePerDay = findViewById(R.id.text_per_day);
+
         mEditCategoryView = findViewById(R.id.edit_category);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, MainActivity.getCalc().GetCategories());
         mEditCategoryView.setAdapter(adapter);
@@ -108,25 +118,9 @@ public class EditRowActivity extends AppCompatActivity {
         final Button button = findViewById(R.id.button_save);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-
-                Row row = new Row();
+                Row row = generateRowFromView();
                 if (editRow != null)
                     row.Line = editRow.Line;
-                row.Amount = Float.parseFloat(mEditAmountView.getText().toString());
-                row.From = new DateTime(EditRowActivity.this.From.year().get(),
-                        EditRowActivity.this.From.monthOfYear().get(),
-                        EditRowActivity.this.From.dayOfMonth().get(), 0, 0); //remove time information
-
-                row.LengthCount = Integer.parseInt(mEditLengthCountView.getText().toString());
-                row.LengthType = DayType.valueOf(DayType.class, mEditLengthTypeView.getSelectedItem().toString());
-                row.Category = mEditCategoryView.getText().toString().trim();
-                row.IsIncome = mEditIsIncomeView.isChecked();
-                if (mEditIsRepeatView.isChecked()) {
-                    row.RepeatCount = row.LengthCount;
-                    row.RepeatType = row.LengthType; //we are not supporting different lengths and repeat lengths here
-                    row.RepeatEnd = EditRowActivity.this.RepeatEnd;
-                }
-                row.Note = mEditNotesView.getText().toString().trim();
 
                 String rowError = row.Validate();
                 if (rowError != null) {
@@ -144,6 +138,70 @@ public class EditRowActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        //add a global text listener so we can update the per day value
+        TextWatcher tw = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+                updatePerDay();
+            }
+        };
+        mEditAmountView.addTextChangedListener(tw);
+        mEditLengthCountView.addTextChangedListener(tw);
+        mEditIsIncomeView.addTextChangedListener(tw);
+        mEditLengthTypeView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                updatePerDay();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        mEditIsIncomeView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                updatePerDay();
+            }
+        });
+
+        //then lastly set focus for the amount on new
+        if (editRow == null)
+            mEditAmountView.requestFocus(); //TODO this doesn't open the keyboard
+    }
+
+    private Row generateRowFromView() {
+        Row row = new Row();
+        String amountStr = mEditAmountView.getText().toString();
+        if (amountStr.isEmpty())
+            amountStr = "0";
+        row.Amount = Float.parseFloat(amountStr);
+        row.From = new DateTime(EditRowActivity.this.From.year().get(),
+                EditRowActivity.this.From.monthOfYear().get(),
+                EditRowActivity.this.From.dayOfMonth().get(), 0, 0); //remove time information
+
+        String lengthCountStr = mEditLengthCountView.getText().toString();
+        if (lengthCountStr.isEmpty())
+            lengthCountStr = "0";
+        row.LengthCount = Integer.parseInt(lengthCountStr);
+        row.LengthType = DayType.valueOf(DayType.class, mEditLengthTypeView.getSelectedItem().toString());
+        row.Category = mEditCategoryView.getText().toString().trim();
+        row.IsIncome = mEditIsIncomeView.isChecked();
+        if (mEditIsRepeatView.isChecked()) {
+            row.RepeatCount = row.LengthCount;
+            row.RepeatType = row.LengthType; //we are not supporting different lengths and repeat lengths here
+            row.RepeatEnd = EditRowActivity.this.RepeatEnd;
+        }
+        row.Note = mEditNotesView.getText().toString().trim();
+        return row;
+    }
+
+    private void updatePerDay() {
+        String text = H.to2Places(generateRowFromView().CalcPerDay());
+        mValuePerDay.setText(String.format(" $%s / day", text));
     }
 
     public void onDeleteClick(View view) {
