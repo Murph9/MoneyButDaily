@@ -3,6 +3,7 @@ package com.murph9.moneybutdaily;
 import com.murph9.moneybutdaily.model.DayType;
 
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -17,6 +18,9 @@ public class H {
     public static final String VIEW_YM_FORMAT = "yyyy/MM";
     public static final String VIEW_Y_FORMAT = "yyyy";
 
+    public static final String VIEW_MD_FORMAT = "MMM-d";
+    public static final String VIEW_YM_S_FORMAT = "yy-MMM";
+
     public static DateTime startOfWeek(DateTime date) {
         return date.weekOfWeekyear().roundFloorCopy();
     }
@@ -25,24 +29,6 @@ public class H {
     }
     public static DateTime startOfYear(DateTime date) {
         return date.dayOfYear().roundFloorCopy();
-    }
-
-    public static String dateRangeFor(DateTime from, DayType type) {
-        switch(type) {
-            case Day:
-                return from.toString(H.VIEW_YMD_FORMAT);
-            case Week:
-                return startOfWeek(from).toString(H.VIEW_YMD_FORMAT) + " - " +startOfWeek(from).plusDays(7).toString(H.VIEW_YMD_FORMAT);
-            case Month:
-                return from.toString(H.VIEW_YM_FORMAT);
-            case Quarterly:
-                return from.toString(H.VIEW_YM_FORMAT) + " - " + from.plusMonths(3).toString(H.VIEW_YM_FORMAT);
-            case Year:
-                return from.toString(H.VIEW_Y_FORMAT);
-            case None:
-            default:
-                return "<unknown>";
-        }
     }
 
     private static final DecimalFormat valueFormat = new DecimalFormat("#.##");

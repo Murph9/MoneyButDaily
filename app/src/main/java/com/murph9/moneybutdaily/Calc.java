@@ -36,7 +36,7 @@ public class Calc {
 
     private DateTime _firstEntryDate;
 
-    public Calc(Collection<Row> data) {
+    Calc(Collection<Row> data) {
         _firstEntryDate = new DateTime(Long.MIN_VALUE);
 
         if (data == null) {
@@ -78,45 +78,30 @@ public class Calc {
         return list;
     }
 
-    public float TotalForDay(DateTime day)
-    {
-        float total = 0;
-        for (Row row: RowsForDay(day)) {
-            total += row.CalcPerDay();
+    public float TotalFor(DateTime day, DayType type) {
+        Map<String, Float> dict;
+        switch (type) {
+            case Day:
+                dict = ReportForDay(day);
+                break;
+            case Week:
+                dict = ReportForWeek(day);
+                break;
+            case Month:
+                dict = ReportForMonth(day);
+                break;
+            case Year:
+                dict = ReportForYear(day);
+                break;
+            case Quarterly:
+            case None:
+            default:
+                 dict = new HashMap<>();
         }
-        return total;
-    }
-
-    public float TotalForWeek(DateTime day)
-    {
-        //get start day of the week (monday)
-        day = day.weekOfWeekyear().roundFloorCopy();
-
         float total = 0;
-        total += TotalForDay(day);
-        total += TotalForDay(day.plusDays(1));
-        total += TotalForDay(day.plusDays(2));
-        total += TotalForDay(day.plusDays(3));
-        total += TotalForDay(day.plusDays(4));
-        total += TotalForDay(day.plusDays(5));
-        total += TotalForDay(day.plusDays(6));
-
-        return total;
-    }
-
-    public float TotalForMonth(DateTime day)
-    {
-        //get the start of the month
-        day = day.monthOfYear().roundFloorCopy();
-
-        int month = day.getMonthOfYear();
-        float total = 0;
-        while (day.getMonthOfYear() == month)
-        {
-            total += TotalForDay(day);
-            day = day.plusDays(1);
+        for (Map.Entry<String, Float> entry: dict.entrySet()) {
+            total += entry.getValue();
         }
-
         return total;
     }
 
@@ -131,7 +116,6 @@ public class Calc {
 
             dict.put(row.Category, dict.get(row.Category) + row.CalcPerDay());
         }
-
         return dict;
     }
 

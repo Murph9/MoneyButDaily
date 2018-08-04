@@ -60,10 +60,15 @@ public class BarGraphView extends View {
     }
 
     public void init(float scale) {
-        this.scale = scale;
+        setColourScale(scale);
 
         this.paint.setStyle(Paint.Style.FILL);
         this.paint.setTextSize(getResources().getDisplayMetrics().scaledDensity * 17);
+    }
+    public void setColourScale(float scale) {
+        if (this.scale <= 0)
+            scale = 1; //my sanity is important
+        this.scale = scale;
     }
 
     public void updateBars(List<Bar> bars, HashMap<Bar, SpecialBar> specials) {

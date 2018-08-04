@@ -134,7 +134,7 @@ public class ReportActivity extends AppCompatActivity {
 
         //update the value at the top
         TextView date = findViewById(R.id.text_today);
-        date.setText(H.dateRangeFor(this.date, this.type));
+        date.setText(DayTypeHelper.dateRangeFor(this.date, this.type));
 
         //update report
         TableLayout reportView = findViewById(R.id.report_table);
