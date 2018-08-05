@@ -1,6 +1,7 @@
 package com.murph9.moneybutdaily;
 
 import com.murph9.moneybutdaily.model.DayType;
+import com.murph9.moneybutdaily.model.DayTypePeriod;
 import com.murph9.moneybutdaily.model.Row;
 
 import org.joda.time.DateTime;
@@ -77,21 +78,23 @@ public class Calc {
 
         return list;
     }
+    //TODO to improve year calculated perf there will need to be a RowsForMonth method
+    //or i could just cache the RowsForDay result for each day (memory issues??)
 
-    public float TotalFor(DateTime day, DayType type) {
+    public float TotalFor(DayTypePeriod period) {
         Map<String, Float> dict;
-        switch (type) {
+        switch (period.type) {
             case Day:
-                dict = ReportForDay(day);
+                dict = ReportForDay(period.date);
                 break;
             case Week:
-                dict = ReportForWeek(day);
+                dict = ReportForWeek(period.date);
                 break;
             case Month:
-                dict = ReportForMonth(day);
+                dict = ReportForMonth(period.date);
                 break;
             case Year:
-                dict = ReportForYear(day);
+                dict = ReportForYear(period.date);
                 break;
             case Quarterly:
             case None:

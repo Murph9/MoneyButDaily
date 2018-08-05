@@ -22,13 +22,13 @@ public class H {
     public static final String VIEW_YM_S_FORMAT = "yy-MMM";
 
     public static DateTime startOfWeek(DateTime date) {
-        return date.weekOfWeekyear().roundFloorCopy();
+        return date.weekOfWeekyear().roundFloorCopy().withTimeAtStartOfDay();
     }
     public static DateTime startOfMonth(DateTime date) {
-        return date.monthOfYear().roundFloorCopy();
+        return date.monthOfYear().roundFloorCopy().withTimeAtStartOfDay();
     }
     public static DateTime startOfYear(DateTime date) {
-        return date.dayOfYear().roundFloorCopy();
+        return date.dayOfYear().roundFloorCopy().withTimeAtStartOfDay();
     }
 
     private static final DecimalFormat valueFormat = new DecimalFormat("#.##");

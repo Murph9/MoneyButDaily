@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
     private void setPageData(List<Row> rows) {
         calc = new Calc(rows);
 
-        float todayValue = calc.TotalFor(new DateTime(), DayType.Day);
+        float todayValue = calc.TotalFor(new DayTypePeriod(DayType.Day, new DateTime()));
         TextView todayText = findViewById(R.id.todayText);
         todayText.setText(H.to2Places(todayValue));
 
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         DayTypePeriod period = new DayTypePeriod(graphType, now);
         for (int i = 0; i < BAR_COUNT; i++) {
             DayTypePeriod curPeriod = period.nextPeriod(i + graphOffset);
-            float total = curPeriod.calcTotal(calc);
+            float total = calc.TotalFor(curPeriod);
 
             BarGraphView.Bar b = new BarGraphView.Bar(total, curPeriod.date.toString(barDateFormat));
             bars.add(b);

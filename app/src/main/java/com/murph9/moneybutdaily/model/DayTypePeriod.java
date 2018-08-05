@@ -67,10 +67,6 @@ public class DayTypePeriod {
         return new DayTypePeriod(this.type, newDate);
     }
 
-    public float calcTotal(Calc calc) {
-        return calc.TotalFor(date, type); //TODO calc should take in DayTypePeriod?
-    }
-
     //region Static Methods
     public static String dateFormatByType(DayType type) {
         switch(type) {
