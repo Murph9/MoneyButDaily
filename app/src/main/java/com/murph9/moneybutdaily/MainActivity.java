@@ -14,12 +14,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.murph9.moneybutdaily.model.DayType;
+import com.murph9.moneybutdaily.model.DayTypePeriod;
 import com.murph9.moneybutdaily.model.Row;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 import org.joda.time.DateTime;
 
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 graphOffset = -BAR_COUNT + 1 + BAR_FUTURE_COUNT;
                 graphType = DayType.valueOf(DayType.class, mEditLengthTypeView.getSelectedItem().toString());
 
-                bgv.setColourScale(COLOUR_DAY_SCALE * DayTypeHelper.closeDayCountByType(graphType));
+                bgv.setColourScale(COLOUR_DAY_SCALE * DayTypePeriod.dayCountByType(graphType));
                 updateGraph();
             }
             @Override
@@ -99,24 +99,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateGraph() {
-        String barDateFormat = DayTypeHelper.dateFormatByType(graphType);
+        String barDateFormat = DayTypePeriod.dateFormatByType(graphType);
 
         BarGraphView bgv = findViewById(R.id.bar_graph);
         List<BarGraphView.Bar> bars = new LinkedList<>();
         HashMap<BarGraphView.Bar, BarGraphView.SpecialBar> barSpecials = new HashMap<>();
 
         DateTime now = DateTime.now().withTimeAtStartOfDay(); //'no time'
+        DayTypePeriod period = new DayTypePeriod(graphType, now);
         for (int i = 0; i < BAR_COUNT; i++) {
-            DateTime dt = DayTypeHelper.offsetDateByType(graphType, now, i+graphOffset);
-            float total = DayTypeHelper.totalByType(graphType, calc, dt);
+            DayTypePeriod curPeriod = period.nextPeriod(i + graphOffset);
+            float total = curPeriod.calcTotal(calc);
 
-            BarGraphView.Bar b = new BarGraphView.Bar(total, dt.toString(barDateFormat));
+            BarGraphView.Bar b = new BarGraphView.Bar(total, curPeriod.date.toString(barDateFormat));
             bars.add(b);
 
             //calc special labels
-            if (DayTypeHelper.isCurrentByType(graphType, dt, now)) { //same
+            if (curPeriod.contains(now)) { //same
                 barSpecials.put(b, BarGraphView.SpecialBar.Current);
-            } else if (DayTypeHelper.isFutureByType(graphType, dt, now)) { //after
+            } else if (curPeriod.isBefore(now)) { //after
                 barSpecials.put(b, BarGraphView.SpecialBar.Future);
             }
         }
