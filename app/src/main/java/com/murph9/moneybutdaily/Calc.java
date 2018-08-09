@@ -35,10 +35,13 @@ public class Calc {
         }
     }
 
-    private DateTime _firstEntryDate;
+    private DateTime firstEntryDate;
+
+    private Cache<DateTime, Collection<Row>> rowDayCache;
 
     Calc(Collection<Row> data) {
-        _firstEntryDate = new DateTime(Long.MIN_VALUE);
+        rowDayCache = new Cache<>();
+        firstEntryDate = new DateTime(Long.MIN_VALUE);
 
         if (data == null) {
             data = new LinkedList<>();
@@ -51,12 +54,17 @@ public class Calc {
                 _categories.add(r.Category);
 
             //get min date
-            _firstEntryDate = _firstEntryDate.compareTo(r.From) > 0 ? r.From : _firstEntryDate;
+            firstEntryDate = firstEntryDate.compareTo(r.From) > 0 ? r.From : firstEntryDate;
         }
     }
 
     private Collection<Row> RowsForDay(DateTime day)
     {
+        Collection<Row> cacheValue = rowDayCache.get(day.withTimeAtStartOfDay());
+        if (cacheValue != null) {
+            return cacheValue;
+        }
+
         Collection<Row> list = new LinkedList<>();
         for (Range range: _dayRanges)
         {
@@ -76,10 +84,9 @@ public class Calc {
             list.add(range.row);
         }
 
+        rowDayCache.set(day.withTimeAtStartOfDay(), list);
         return list;
     }
-    //TODO to improve year calculated perf there will need to be a RowsForMonth method
-    //or i could just cache the RowsForDay result for each day (memory issues??)
 
     public float TotalFor(DayTypePeriod period) {
         Map<String, Float> dict;
@@ -202,5 +209,10 @@ public class Calc {
         }
 
         return dict;
+    }
+
+
+    public DateTime getFirstDate() {
+        return this.firstEntryDate;
     }
 }
