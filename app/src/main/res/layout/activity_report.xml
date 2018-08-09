@@ -67,17 +67,21 @@
         android:onClick="prevDate"
         android:text="@string/minus"
         app:layout_constraintEnd_toStartOf="@+id/text_today"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/now_button"
         app:layout_constraintTop_toBottomOf="@+id/report_tab_Layout" />
 
     <TextView
         android:id="@+id/text_today"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
         android:text="no idea"
         app:layout_constraintBaseline_toBaselineOf="@+id/next_report"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toStartOf="@+id/next_report"
+        app:layout_constraintStart_toEndOf="@+id/prev_report" />
 
     <ScrollView
         android:layout_width="0dp"
@@ -113,5 +117,20 @@
 
         </TableLayout>
     </ScrollView>
+
+    <Button
+        android:id="@+id/now_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:onClick="resetOffset"
+        android:text="Now"
+        app:layout_constraintEnd_toStartOf="@+id/prev_report"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/report_tab_Layout" />
 
 </android.support.constraint.ConstraintLayout>

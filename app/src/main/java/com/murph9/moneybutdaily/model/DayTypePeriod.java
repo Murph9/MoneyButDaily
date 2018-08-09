@@ -20,11 +20,11 @@ public class DayTypePeriod {
             case Day:
                 return date.toString(H.VIEW_YMD_FORMAT);
             case Week:
-                return H.startOfWeek(date).toString(H.VIEW_YMD_FORMAT) + " - " + H.startOfWeek(date).plusDays(7).toString(H.VIEW_YMD_FORMAT);
+                return H.startOfWeek(date).toString(H.VIEW_YMD_FORMAT) + " - " + H.startOfWeek(date).plusDays(6).toString(H.VIEW_YMD_FORMAT);
             case Month:
                 return date.toString(H.VIEW_YM_FORMAT);
             case Quarterly:
-                return date.toString(H.VIEW_YM_FORMAT) + " - " + date.plusMonths(3).toString(H.VIEW_YM_FORMAT);
+                return date.toString(H.VIEW_YM_FORMAT) + " - " + date.plusMonths(2).toString(H.VIEW_YM_FORMAT);
             case Year:
                 return date.toString(H.VIEW_Y_FORMAT);
             case None:
@@ -41,6 +41,9 @@ public class DayTypePeriod {
     }
 
     public DayTypePeriod nextPeriod(int offset) {
+        if (offset == 0) //no need for math if its 0
+            return new DayTypePeriod(this.type, this.date);
+
         DateTime newDate;
         switch (type) {
             case Day:

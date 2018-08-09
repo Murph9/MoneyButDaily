@@ -59,8 +59,7 @@ public class Calc {
         }
     }
 
-    private Collection<Row> RowsForDay(DateTime day)
-    {
+    private Collection<Row> RowsForDay(DateTime day) {
         Collection<Row> cacheValue = rowDayCache.get(day.withTimeAtStartOfDay());
         if (cacheValue != null) {
             return cacheValue;
@@ -90,34 +89,37 @@ public class Calc {
     }
 
     public float TotalFor(DayTypePeriod period) {
-        Map<String, Float> dict;
-        switch (period.type) {
-            case Day:
-                dict = ReportForDay(period.date);
-                break;
-            case Week:
-                dict = ReportForWeek(period.date);
-                break;
-            case Month:
-                dict = ReportForMonth(period.date);
-                break;
-            case Year:
-                dict = ReportForYear(period.date);
-                break;
-            case Quarterly:
-            case None:
-            default:
-                 dict = new HashMap<>();
-        }
         float total = 0;
-        for (Map.Entry<String, Float> entry: dict.entrySet()) {
+        for (Map.Entry<String, Float> entry: ReportFor(period).entrySet()) {
             total += entry.getValue();
         }
         return total;
     }
 
-    public Map<String, Float> ReportForDay(DateTime day)
-    {
+    public Map<String, Float> ReportFor(DayTypePeriod period) {
+        Map<String, Float> dict;
+        switch (period.type) {
+            case Day:
+                dict = reportForDay(period.date);
+                break;
+            case Week:
+                dict = reportForWeek(period.date);
+                break;
+            case Month:
+                dict = reportForMonth(period.date);
+                break;
+            case Year:
+                dict = reportForYear(period.date);
+                break;
+            case Quarterly:
+            case None:
+            default:
+                dict = new HashMap<>();
+        }
+        return dict;
+    }
+
+    private Map<String, Float> reportForDay(DateTime day) {
         Collection<Row> rows = RowsForDay(day);
         Map<String, Float> dict = new HashMap<>();
         for (Row row: rows)
@@ -131,17 +133,16 @@ public class Calc {
     }
 
     //PERF: kind of slow
-    public Map<String, Float> ReportForWeek(DateTime day)
-    {
+    private Map<String, Float> reportForWeek(DateTime day) {
         //get start day of the week (monday)
         day = H.startOfWeek(day);
 
-        Map<String, Float> dict = ReportForDay(day);
+        Map<String, Float> dict = reportForDay(day);
 
         day = day.plusDays(1);
         while (day.dayOfWeek().get() != DateTimeConstants.MONDAY)
         {
-            Map<String, Float> newDayDict = ReportForDay(day);
+            Map<String, Float> newDayDict = reportForDay(day);
 
             for (String key: newDayDict.keySet())
             {
@@ -158,17 +159,16 @@ public class Calc {
     }
 
     //PERF: slow
-    public Map<String, Float> ReportForMonth(DateTime day)
-    {
+    private Map<String, Float> reportForMonth(DateTime day) {
         //get the start of the month
         day = H.startOfMonth(day);
 
-        Map<String, Float> dict = ReportForDay(day);
+        Map<String, Float> dict = reportForDay(day);
 
         day = day.plusDays(1);
         while (day.dayOfMonth().get() != 1) //haha do while
         {
-            Map<String, Float> newDayDict = ReportForDay(day);
+            Map<String, Float> newDayDict = reportForDay(day);
 
             for (String key: newDayDict.keySet())
             {
@@ -185,18 +185,17 @@ public class Calc {
     }
 
     //PERF: really slow (probably causes way too many map<>s)
-    public Map<String, Float> ReportForYear(DateTime day)
-    {
+    private Map<String, Float> reportForYear(DateTime day) {
         //get the start of the year
         day = H.startOfYear(day);
 
         int year = day.getYear();
-        Map<String, Float> dict = ReportForMonth(day);
+        Map<String, Float> dict = reportForMonth(day);
 
         day = day.plusMonths(1);
         while (day.getYear() == year) //haha do while
         {
-            Map<String, Float> newDayDict = ReportForMonth(day);
+            Map<String, Float> newDayDict = reportForMonth(day);
 
             for (String key: newDayDict.keySet())
             {

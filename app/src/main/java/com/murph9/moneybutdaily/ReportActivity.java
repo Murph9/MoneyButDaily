@@ -25,13 +25,8 @@ import java.util.Map;
 
 public class ReportActivity extends AppCompatActivity {
 
-    private final int TAB_DAY = 0;
-    private final int TAB_WEEK = 1;
-    private final int TAB_MONTH = 2;
-    private final int TAB_YEAR = 3;
-
-    private int tabId = TAB_DAY;
-    private DateTime date;
+    private int tabId;
+    private int typeOffset;
     private DayType type = DayType.None;
 
     private Calc calc;
@@ -42,8 +37,8 @@ public class ReportActivity extends AppCompatActivity {
         setContentView(R.layout.activity_report);
 
         //init to today
-        //TODO prevent future?
-        date = new DateTime();
+        tabId = 0;
+        typeOffset = 0;
         type = DayType.Day;
 
         RowViewModel mRowViewViewModel = ViewModelProviders.of(this).get(RowViewModel.class);
@@ -71,44 +66,6 @@ public class ReportActivity extends AppCompatActivity {
         });
     }
 
-    private DateTime getNextDate(DateTime date) {
-        return getNewDate(date, 1);
-    }
-    private DateTime getPrevDate(DateTime date) {
-        return getNewDate(date, -1);
-    }
-    private DateTime getNewDate(DateTime date, int mod) {
-        switch (this.tabId) {
-            case TAB_DAY:
-                return date.plusDays(mod);
-            case TAB_WEEK:
-                return date.plusWeeks(mod);
-            case TAB_MONTH:
-                return date.plusMonths(mod);
-            case TAB_YEAR:
-                return date.plusYears(mod);
-            default:
-                Toast.makeText(this, "Invalid tab selected", Toast.LENGTH_SHORT).show();
-                return date;
-        }
-    }
-
-    private Map<String, Float> getReportData() {
-        switch (this.tabId) {
-            case TAB_DAY:
-                return calc.ReportForDay(this.date);
-            case TAB_WEEK:
-                return calc.ReportForWeek(this.date);
-            case TAB_MONTH:
-                return calc.ReportForMonth(this.date);
-            case TAB_YEAR:
-                return calc.ReportForYear(this.date);
-            default:
-                Toast.makeText(this, "Invalid tab selected", Toast.LENGTH_SHORT).show();
-                return null;
-        }
-    }
-
     private void setPageData(List<Row> rows) {
         calc = new Calc(rows);
         updatePage();
@@ -117,16 +74,16 @@ public class ReportActivity extends AppCompatActivity {
     private void updatePage() {
         //update type
         switch (this.tabId) {
-            case TAB_DAY:
+            case 0: //TODO hard coded ordering
                 this.type = DayType.Day;
                 break;
-            case TAB_WEEK:
+            case 1:
                 this.type = DayType.Week;
                 break;
-            case TAB_MONTH:
+            case 2:
                 this.type = DayType.Month;
                 break;
-            case TAB_YEAR:
+            case 3:
                 this.type = DayType.Year;
                 break;
             default:
@@ -134,9 +91,11 @@ public class ReportActivity extends AppCompatActivity {
                 return;
         }
 
+        DayTypePeriod period = new DayTypePeriod(this.type, DateTime.now().withTimeAtStartOfDay()).nextPeriod(typeOffset);
+
         //update the value at the top
         TextView date = findViewById(R.id.text_today);
-        date.setText(new DayTypePeriod(this.type, this.date).dateRangeFor());
+        date.setText(period.dateRangeFor());
 
         //update report
         TableLayout reportView = findViewById(R.id.report_table);
@@ -146,7 +105,7 @@ public class ReportActivity extends AppCompatActivity {
         addRow(this, reportView, "Category", "Value");
         addRow(this, reportView, "", "");
 
-        Map<String, Float> report = getReportData();
+        Map<String, Float> report = calc.ReportFor(period); //TODO async
         float incomeTotal = 0;
         if (report != null) {
             //first only the income rows
@@ -198,19 +157,22 @@ public class ReportActivity extends AppCompatActivity {
     private void setTabId(int id) {
         this.tabId = id;
 
-        //new report type selected, reset to today
-        this.date = new DateTime();
+        typeOffset = 0; //new report type selected, reset to 0
 
         updatePage();
     }
 
+    public void resetOffset(View view) {
+        typeOffset = 0;
+        updatePage();
+    }
 
     public void nextDate(View view) {
-        this.date = getNextDate(this.date);
+        typeOffset++;
         updatePage();
     }
     public void prevDate(View view) {
-        this.date = getPrevDate(this.date);
+        typeOffset--;
         updatePage();
     }
 }
