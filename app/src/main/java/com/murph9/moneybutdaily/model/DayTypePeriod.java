@@ -1,6 +1,5 @@
 package com.murph9.moneybutdaily.model;
 
-import com.murph9.moneybutdaily.Calc;
 import com.murph9.moneybutdaily.H;
 
 import org.joda.time.DateTime;

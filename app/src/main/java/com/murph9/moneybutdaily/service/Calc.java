@@ -1,5 +1,6 @@
-package com.murph9.moneybutdaily;
+package com.murph9.moneybutdaily.service;
 
+import com.murph9.moneybutdaily.H;
 import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.DayTypePeriod;
 import com.murph9.moneybutdaily.model.Row;
@@ -39,7 +40,7 @@ public class Calc {
 
     private Cache<DateTime, Collection<Row>> rowDayCache;
 
-    Calc(Collection<Row> data) {
+    public Calc(Collection<Row> data) {
         rowDayCache = new Cache<>();
         firstEntryDate = new DateTime(Long.MIN_VALUE);
 

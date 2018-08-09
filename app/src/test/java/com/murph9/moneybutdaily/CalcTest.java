@@ -2,6 +2,7 @@ package com.murph9.moneybutdaily;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
+import com.murph9.moneybutdaily.service.Calc;
 import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.DayTypePeriod;
 import com.murph9.moneybutdaily.model.Row;

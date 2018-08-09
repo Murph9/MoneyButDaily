@@ -1,4 +1,4 @@
-package com.murph9.moneybutdaily;
+package com.murph9.moneybutdaily.service;
 
 import java.util.HashMap;
 
