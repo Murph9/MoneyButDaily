@@ -47,12 +47,11 @@
         android:id="@+id/bar_graph"
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        android:layout_marginTop="8dp"
         android:background="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/graph_lengthtype" />
+        app:layout_constraintTop_toBottomOf="@+id/graph_right" />
 
     <Button
         android:id="@+id/view_report"
@@ -81,7 +80,7 @@
         android:id="@+id/graph_left"
         style="@style/Widget.AppCompat.Button.Small"
         android:layout_width="wrap_content"
-        android:layout_height="36dp"
+        android:layout_height="48dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:onClick="minusOffset"
@@ -93,8 +92,8 @@
     <Button
         android:id="@+id/graph_right"
         style="@style/Widget.AppCompat.Button.Small"
-        android:layout_width="48dp"
-        android:layout_height="36dp"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:onClick="addOffset"
