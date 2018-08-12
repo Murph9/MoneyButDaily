@@ -10,14 +10,12 @@
         android:id="@+id/row_list_item_category"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:text="N/A"
-        app:layout_constraintBaseline_toBaselineOf="@+id/row_list_item_amount"
-        app:layout_constraintEnd_toStartOf="@+id/row_list_item_amount"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/row_list_item_amount"
@@ -27,10 +25,11 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:text="$0"
-        app:layout_constraintBaseline_toBaselineOf="@+id/row_list_item_edit"
         app:layout_constraintEnd_toStartOf="@+id/row_list_item_startdate"
-        app:layout_constraintStart_toEndOf="@+id/row_list_item_category" />
+        app:layout_constraintStart_toEndOf="@+id/row_list_item_category"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/row_list_item_startdate"
@@ -40,72 +39,73 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:text="today?"
-        app:layout_constraintBaseline_toBaselineOf="@+id/row_list_item_edit"
-        app:layout_constraintEnd_toStartOf="@+id/row_list_item_lengthcount"
-        app:layout_constraintStart_toEndOf="@+id/row_list_item_amount" />
+        app:layout_constraintEnd_toStartOf="@+id/row_list_item_edit"
+        app:layout_constraintHorizontal_bias="0.943"
+        app:layout_constraintStart_toEndOf="@+id/row_list_item_amount"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/row_list_item_lengthcount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:text="1"
-        app:layout_constraintBaseline_toBaselineOf="@+id/row_list_item_edit"
-        app:layout_constraintEnd_toStartOf="@+id/row_list_item_lengthtype"
-        app:layout_constraintStart_toEndOf="@+id/row_list_item_startdate" />
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/row_list_item_category" />
 
     <TextView
         android:id="@+id/row_list_item_lengthtype"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="None"
+        app:layout_constraintStart_toEndOf="@+id/row_list_item_lengthcount"
+        app:layout_constraintTop_toBottomOf="@+id/row_list_item_category" />
+
+    <TextView
+        android:id="@+id/row_list_item_repeat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="7dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="7dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="N"
+        app:layout_constraintEnd_toStartOf="@+id/row_list_item_perday"
+        app:layout_constraintStart_toEndOf="@+id/row_list_item_lengthtype"
+        app:layout_constraintTop_toBottomOf="@+id/row_list_item_category" />
+
+    <Button
+        android:id="@+id/row_list_item_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="8dp"
+        android:text="Edit"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/row_list_item_perday"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:text="None"
-        app:layout_constraintBaseline_toBaselineOf="@+id/row_list_item_edit"
-        app:layout_constraintEnd_toStartOf="@+id/row_list_item_isincome"
-        app:layout_constraintStart_toEndOf="@+id/row_list_item_lengthcount" />
-
-    <TextView
-        android:id="@+id/row_list_item_isincome"
-        android:layout_width="20dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:text="\?"
-        app:layout_constraintBaseline_toBaselineOf="@+id/row_list_item_repeat"
-        app:layout_constraintEnd_toStartOf="@+id/row_list_item_repeat"
-        app:layout_constraintStart_toEndOf="@+id/row_list_item_lengthtype" />
-
-    <TextView
-        android:id="@+id/row_list_item_repeat"
-        android:layout_width="20dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:text="\?"
-        app:layout_constraintBaseline_toBaselineOf="@+id/row_list_item_edit"
+        android:layout_marginTop="8dp"
+        android:text="$0/day"
         app:layout_constraintEnd_toStartOf="@+id/row_list_item_edit"
-        app:layout_constraintStart_toEndOf="@+id/row_list_item_isincome" />
-
-    <Button
-        android:id="@+id/row_list_item_edit"
-        android:layout_width="80dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:text="Edit"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/row_list_item_repeat"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/row_list_item_category" />
 
 </android.support.constraint.ConstraintLayout>
