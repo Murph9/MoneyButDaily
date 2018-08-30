@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -60,6 +61,14 @@ public class MainActivity extends AppCompatActivity {
         //My BarGraph
         final BarGraphView bgv = findViewById(R.id.bar_graph);
         bgv.init(COLOUR_DAY_SCALE); //color scale
+        bgv.setOnBarTouchedListener(new BarGraphView.BarClickedListener() {
+            @Override
+            public void onBarClicked(int index) {
+                //calc clicked period
+                int offset = index + graphOffset;
+                viewReportPage(offset, graphType);
+            }
+        });
 
         graphOffset = -BAR_COUNT + 1 + BAR_FUTURE_COUNT;
         graphType = DayType.Day;
@@ -160,5 +169,13 @@ public class MainActivity extends AppCompatActivity {
     public void minusOffset(View view) {
         graphOffset--;
         updateGraph();
+    }
+
+
+    public void viewReportPage(int offset, DayType type) {
+        Intent intent = new Intent(MainActivity.this, ReportActivity.class);
+        intent.putExtra(ReportActivity.EXTRA_OFFSET, offset);
+        intent.putExtra(ReportActivity.EXTRA_PERIOD, type.toString());
+        startActivityForResult(intent, REPORT_ACTIVITY_REQUEST_CODE);
     }
 }

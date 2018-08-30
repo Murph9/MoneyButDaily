@@ -30,7 +30,7 @@ import org.joda.time.DateTime;
 
 public class EditRowActivity extends AppCompatActivity {
 
-    public static final String EXTRA_LINE = "com.murph.moneybutdaily.Line";
+    public static final String EXTRA_LINE = "com.murph.moneybutdaily.editrowactivity.line";
 
     private EditText mEditAmountView;
     private EditText mEditLengthCountView;

@@ -3,6 +3,7 @@ package com.murph9.moneybutdaily;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -20,10 +21,30 @@ import com.murph9.moneybutdaily.model.Row;
 
 import org.joda.time.DateTime;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ReportActivity extends AppCompatActivity {
+
+    public static final String EXTRA_PERIOD = "com.murph.moneybutdaily.reportactivity.period";
+    public static final String EXTRA_OFFSET = "com.murph.moneybutdaily.reportactivity.offset";
+
+    private static final Map<Integer, DayType> tabTypeMap;
+    private static final Map<DayType, Integer> typeTabMap;
+    static {
+        tabTypeMap = new HashMap<>();
+        tabTypeMap.put(0, DayType.Day);
+        tabTypeMap.put(1, DayType.Week);
+        tabTypeMap.put(2, DayType.Month);
+        tabTypeMap.put(3, DayType.Year);
+
+        typeTabMap = new HashMap<>();
+        typeTabMap.put(DayType.Day, 0);
+        typeTabMap.put(DayType.Week, 1);
+        typeTabMap.put(DayType.Month, 2);
+        typeTabMap.put(DayType.Year, 3);
+    }
 
     private int tabId;
     private int typeOffset;
@@ -36,10 +57,21 @@ public class ReportActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report);
 
-        //init to today
-        tabId = 0;
+        //init or read from intent
         typeOffset = 0;
         type = DayType.Day;
+        Intent intent = getIntent();
+        if (intent.getExtras() != null) {
+            type = DayType.valueOf(intent.getStringExtra(EXTRA_PERIOD));
+            typeOffset = intent.getIntExtra(EXTRA_OFFSET, 0);
+        }
+        tabId = ReportActivity.typeTabMap.get(type);
+
+        //set the tab 'before' adding the listener
+        TabLayout tabs = findViewById(R.id.report_tab_Layout);
+        TabLayout.Tab tab = tabs.getTabAt(tabId);
+        if (tab != null)
+            tab.select(); //then set it
 
         RowViewModel mRowViewViewModel = ViewModelProviders.of(this).get(RowViewModel.class);
         mRowViewViewModel.getAllRows().observe(this, new Observer<List<Row>>() {
@@ -49,7 +81,7 @@ public class ReportActivity extends AppCompatActivity {
             }
         });
 
-        TabLayout tabs = findViewById(R.id.report_tab_Layout);
+
         tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {

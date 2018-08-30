@@ -7,6 +7,7 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.HashMap;
@@ -15,8 +16,6 @@ import java.util.List;
 import static android.graphics.Color.rgb;
 
 public class BarGraphView extends View {
-
-    //TODO grouping month/week labels?
 
     private static final DashPathEffect currentDash = new DashPathEffect(new float[] {10,10}, 5);
 
@@ -28,11 +27,11 @@ public class BarGraphView extends View {
     private float minValue;
     private float maxValue;
 
-    public static class Bar {
+    static class Bar {
         final float value;
         final String label;
 
-        public Bar (float value, String label) {
+        Bar(float value, String label) {
             this.value = value;
             this.label = label;
         }
@@ -45,18 +44,27 @@ public class BarGraphView extends View {
 
     public BarGraphView(Context context) {
         super(context);
-
-        this.paint = new Paint();
+        constructorHelper();
     }
     public BarGraphView(Context context, AttributeSet attrs) {
         super(context, attrs);
-
-        this.paint = new Paint();
+        constructorHelper();
     }
     public BarGraphView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-
+        constructorHelper();
+    }
+    private void constructorHelper() {
         this.paint = new Paint();
+        this.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                //based on the event, calc which bar was pressed
+                int index = (int)(event.getX() * bars.size()) / v.getWidth();
+                BarGraphView.this.barClickedListener.onBarClicked(index);
+                return false;
+            }
+        });
     }
 
     public void init(float scale) {
@@ -95,6 +103,7 @@ public class BarGraphView extends View {
         this.invalidate();
     }
 
+
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -118,7 +127,7 @@ public class BarGraphView extends View {
 
         int count = bars.size();
         for (int i = 0; i < count; i++) {
-            Bar b = bars.get(i); //TODO hack, please actually work out how many to display
+            Bar b = bars.get(i);
 
             SpecialBar special = null;
             if (specialBars != null && specialBars.containsKey(b))
@@ -199,4 +208,15 @@ public class BarGraphView extends View {
         float y = yPos - r.height() / 2f - r.bottom;
         canvas.drawText(text, x, y, paint);
     }
+
+
+    //region listener related things
+    private BarClickedListener barClickedListener;
+    public interface BarClickedListener {
+        void onBarClicked(int index);
+    }
+    public void setOnBarTouchedListener(BarClickedListener listener) {
+        this.barClickedListener = listener;
+    }
+    //end region
 }
