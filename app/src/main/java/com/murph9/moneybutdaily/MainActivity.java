@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private static int BAR_COUNT = 7;
     private static int BAR_FUTURE_COUNT = 1;
 
-    private static Calc calc;
+    private static Calc calc = new Calc(null);
     public static Calc getCalc() { return calc; }
 
     private Spinner mEditLengthTypeView;
