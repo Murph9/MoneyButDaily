@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -21,10 +20,12 @@ import com.murph9.moneybutdaily.model.Row;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 
 //General App TODO
 /*
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         JodaTimeAndroid.init(this);
+        DateTimeZone.setDefault(DateTimeZone.forTimeZone(TimeZone.getDefault()));
 
         //My BarGraph
         final BarGraphView bgv = findViewById(R.id.bar_graph);
