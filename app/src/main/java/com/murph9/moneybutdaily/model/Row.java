@@ -6,8 +6,7 @@ import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import org.joda.time.DateTime;
-import org.joda.time.Days;
+import java.time.LocalDateTime;
 
 @Entity(tableName = "rows")
 public class Row {
@@ -15,13 +14,12 @@ public class Row {
     @PrimaryKey(autoGenerate = true)
     public int Line;
 
-    @NonNull
     @ColumnInfo(name = "IsIncome")
     public boolean IsIncome;
 
     @NonNull
     @ColumnInfo(name = "From")
-    public DateTime From; //first day this applies
+    public LocalDateTime From; //first day this applies
 
     @NonNull
     @ColumnInfo(name = "Amount")
@@ -34,15 +32,12 @@ public class Row {
     @ColumnInfo(name = "LengthType")
     public DayType LengthType; //day,week,month,year...
 
-    @ColumnInfo(name = "RepeatCount")
-    public int RepeatCount; //count of repeat type
-
     @NonNull
-    @ColumnInfo(name = "RepeatType")
-    public DayType RepeatType; //day,week,month,year...
+    @ColumnInfo(name = "Repeats")
+    public boolean Repeats;
 
-    @ColumnInfo(name = "RepeatEnd")
-    public DateTime RepeatEnd; //no more repeats can start after this day (i.e. 'LastRepeatDay')
+    @ColumnInfo(name = "LastDay")
+    public LocalDateTime LastDay;
 
     @NonNull
     @ColumnInfo(name = "Category")
@@ -53,7 +48,6 @@ public class Row {
 
     public Row() {
         LengthType = DayType.None;
-        RepeatType = DayType.None;
     }
 
     public String Validate() {
@@ -67,37 +61,24 @@ public class Row {
             return "Length count cannot be negative.";
         if (LengthType == DayType.None)
             return "Length type must not be None";
-        if ((RepeatCount != 0 && RepeatType == DayType.None) || (RepeatCount == 0 && RepeatType != DayType.None))
-            return "Only one of the repeat type fields is set";
-        if (RepeatCount != 0 && RepeatEnd != null && RepeatEnd.isBefore(From))
-            return "RepeatEnd date earlier than the start date (From).";
-
-        //TODO some less awesome validations because date calculations are hard:
-        // (if something lasts a day but repeats weekly (1d_1w), it does NOT handle it, so remove these cases..)
-        if (RepeatCount != 0 || RepeatType != DayType.None)
-        {
-            if (LengthType != RepeatType)
-                return "Length type and Repeat type must be the same.";
-            if (LengthCount != RepeatCount)
-                return "Length count and Repeat count must be the same.";
-        }
+        if (LastDay != null && LastDay.isBefore(From))
+            return "LastDay date earlier than the start date (From).";
+        if (!Repeats && LastDay != null)
+            return "Must be repeating for LastDay to be set.";
 
         return null;
     }
 
     public float CalcPerDay() {
-        int days = Days.daysBetween(From, CalcFirstPeriodEndDay()).getDays();
-        if (days <= 0)
-            days = 1; //if no days 'assume' its 1 day
+        long days = java.time.temporal.ChronoUnit.DAYS.between(From, CalcFirstPeriodEndDay()) + 1;
+        if (days <= 0) days = 1; // if no days 'assume' its 1 day
         return (IsIncome ? Amount : -Amount) / days;
     }
 
-    public DateTime CalcFirstPeriodEndDay() {
+    public LocalDateTime CalcFirstPeriodEndDay() {
 
-        DateTime result = this.From;
-
-        switch (this.LengthType)
-        {
+        LocalDateTime result = this.From;
+        switch (this.LengthType) {
             case Day:
                 result = result.plusDays(this.LengthCount);
                 break;
@@ -121,27 +102,19 @@ public class Row {
                 }
         }
 
-        return result;
+        return result.plusDays(-1);
     }
 
     //Including repeating, the last day it applies + 1 (can be DateTimeOffset.MaxValue or null)
-    public DateTime CalcLastDay()
+    public LocalDateTime CalcLastDay()
     {
-        if (RepeatCount == 0 || RepeatType == DayType.None)
-            return null;
-
-        if (RepeatEnd == null)
-            return RepeatEnd;
-
-        //loop through the start days of each period
-        DateTime result = From;
-        int dayDiff = Days.daysBetween(From, CalcFirstPeriodEndDay()).getDays();
-        while (result.isBefore(RepeatEnd.plusDays(1)))
-        {
-            result = result.plusDays(dayDiff);
+        if (!Repeats) {
+            // then use the end of the period
+            return CalcFirstPeriodEndDay();
         }
 
-        return result;
+        //else its forever or if its set
+        return LastDay == null ? LocalDateTime.MAX : LastDay;
     }
 
     @Override
@@ -152,8 +125,7 @@ public class Row {
 
     public String toExportString() {
         Object[] list = new Object[] { this.Amount, this.LengthCount, this.LengthType,
-                this.RepeatType == DayType.None, this.RepeatEnd, this.Category, this.Note };
-
+                this.Repeats, this.LastDay, this.Category, this.Note };
         return TextUtils.join(", ", list);
     }
 }

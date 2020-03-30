@@ -1,11 +1,8 @@
 package com.murph9.moneybutdaily;
 
-import com.murph9.moneybutdaily.model.DayType;
-
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
-
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -21,14 +18,22 @@ public class H {
     public static final String VIEW_MD_FORMAT = "MMM-d";
     public static final String VIEW_YM_S_FORMAT = "yy-MMM";
 
-    public static DateTime startOfWeek(DateTime date) {
-        return date.weekOfWeekyear().roundFloorCopy().withTimeAtStartOfDay();
+    public static LocalDateTime getStartOfDay(LocalDateTime date) {
+        return date.withHour(0).withMinute(0).withSecond(0).withNano(0);
     }
-    public static DateTime startOfMonth(DateTime date) {
-        return date.monthOfYear().roundFloorCopy().withTimeAtStartOfDay();
+
+    public static String formatDate(LocalDateTime date, String format) {
+        return date.format(DateTimeFormatter.ofPattern(format));
     }
-    public static DateTime startOfYear(DateTime date) {
-        return date.dayOfYear().roundFloorCopy().withTimeAtStartOfDay();
+
+    public static LocalDateTime startOfWeek(LocalDateTime date) {
+        return date.with(java.time.DayOfWeek.MONDAY);
+    }
+    public static LocalDateTime startOfMonth(LocalDateTime date) {
+        return date.withDayOfMonth(1);
+    }
+    public static LocalDateTime startOfYear(LocalDateTime date) {
+        return date.withDayOfYear(1);
     }
 
     private static final DecimalFormat valueFormat = new DecimalFormat("#.##");

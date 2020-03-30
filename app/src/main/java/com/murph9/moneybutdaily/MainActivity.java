@@ -18,19 +18,14 @@ import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.DayTypePeriod;
 import com.murph9.moneybutdaily.model.Row;
 
-import net.danlew.android.joda.JodaTimeAndroid;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.TimeZone;
 
 //General App TODO
 /*
- fix gaps in repeat (1 day repeat 1 day leaves 6 days gap)
- test cases for the stupid day edge cases
+  test cases for the stupid day edge cases
 */
 
 public class MainActivity extends AppCompatActivity {
@@ -56,9 +51,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        JodaTimeAndroid.init(this);
-        DateTimeZone.setDefault(DateTimeZone.forTimeZone(TimeZone.getDefault()));
 
         //My BarGraph
         final BarGraphView bgv = findViewById(R.id.bar_graph);
@@ -103,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private void setPageData(List<Row> rows) {
         calc = new Calc(rows);
 
-        float todayValue = calc.TotalFor(new DayTypePeriod(DayType.Day, new DateTime()));
+        float todayValue = calc.TotalFor(new DayTypePeriod(DayType.Day, LocalDateTime.now()));
         TextView todayText = findViewById(R.id.todayText);
         todayText.setText(H.to2Places(todayValue));
 
@@ -117,19 +109,19 @@ public class MainActivity extends AppCompatActivity {
         List<BarGraphView.Bar> bars = new LinkedList<>();
         HashMap<BarGraphView.Bar, BarGraphView.SpecialBar> barSpecials = new HashMap<>();
 
-        DateTime now = DateTime.now().withTimeAtStartOfDay(); //'no time'
+        LocalDateTime now = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0); //'no time'
         DayTypePeriod period = new DayTypePeriod(graphType, now);
         for (int i = 0; i < BAR_COUNT; i++) {
             DayTypePeriod curPeriod = period.nextPeriod(i + graphOffset);
             float total = calc.TotalFor(curPeriod);
 
-            BarGraphView.Bar b = new BarGraphView.Bar(total, curPeriod.date.toString(barDateFormat));
+            BarGraphView.Bar b = new BarGraphView.Bar(total, H.formatDate(curPeriod.date, barDateFormat));
             bars.add(b);
 
             //calc special labels
             if (curPeriod.contains(now)) { //same
                 barSpecials.put(b, BarGraphView.SpecialBar.Current);
-            } else if (curPeriod.isBefore(now)) { //after
+            } else if (curPeriod.isAfter(now)) { //after
                 barSpecials.put(b, BarGraphView.SpecialBar.Future);
             }
         }

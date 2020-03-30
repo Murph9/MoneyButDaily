@@ -2,15 +2,14 @@ package com.murph9.moneybutdaily.model;
 
 import com.murph9.moneybutdaily.H;
 
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
+import java.time.LocalDateTime;
 
 public class DayTypePeriod {
 
     public final DayType type;
-    public final DateTime date;
+    public final LocalDateTime date;
 
-    public DayTypePeriod(DayType type, DateTime date) {
+    public DayTypePeriod(DayType type, LocalDateTime date) {
         this.type = type;
         this.date = date;
     }
@@ -18,33 +17,33 @@ public class DayTypePeriod {
     public String dateRangeFor() {
         switch (type) {
             case Day:
-                return date.toString(H.VIEW_YMD_FORMAT);
+                return H.formatDate(date, H.VIEW_YMD_FORMAT);
             case Week:
-                return H.startOfWeek(date).toString(H.VIEW_YMD_FORMAT) + " - " + H.startOfWeek(date).plusDays(6).toString(H.VIEW_YMD_FORMAT);
+                return H.formatDate(H.startOfWeek(date), H.VIEW_YMD_FORMAT) + " - " + H.formatDate(H.startOfWeek(date).plusDays(6), H.VIEW_YMD_FORMAT);
             case Month:
-                return date.toString(H.VIEW_YM_FORMAT);
+                return H.formatDate(date, H.VIEW_YM_FORMAT);
             case Quarterly:
-                return date.toString(H.VIEW_YM_FORMAT) + " - " + date.plusMonths(2).toString(H.VIEW_YM_FORMAT);
+                return H.formatDate(date, H.VIEW_YM_FORMAT) + " - " + H.formatDate(date.plusMonths(2), H.VIEW_YM_FORMAT);
             case Year:
-                return date.toString(H.VIEW_Y_FORMAT);
+                return H.formatDate(date, H.VIEW_Y_FORMAT);
             case None:
             default:
                 return "<unknown>";
         }
     }
 
-    public boolean contains(DateTime test) {
-        return new Interval(date, nextPeriod(1).date.minus(1)).contains(test);
+    public boolean contains(LocalDateTime test) {
+        return this.date.isBefore(test) && nextPeriod(1).date.minusDays(1).isAfter(test);
     }
-    public boolean isBefore(DateTime test) {
-        return nextPeriod(1).date.compareTo(test.withTimeAtStartOfDay()) > 0;
+    public boolean isAfter(LocalDateTime test) {
+        return nextPeriod(1).date.isAfter(test);
     }
 
     public DayTypePeriod nextPeriod(int offset) {
         if (offset == 0) //no need for math if its 0
             return new DayTypePeriod(this.type, this.date);
 
-        DateTime newDate;
+        LocalDateTime newDate;
         switch (type) {
             case Day:
                 newDate = date.plusDays(offset);

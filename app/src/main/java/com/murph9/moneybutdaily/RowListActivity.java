@@ -16,8 +16,7 @@ import android.widget.Toast;
 
 import com.murph9.moneybutdaily.model.Row;
 
-import org.joda.time.DateTime;
-
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class RowListActivity extends AppCompatActivity {
@@ -64,8 +63,7 @@ public class RowListActivity extends AppCompatActivity {
         ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         assert clipboardManager != null;
         String clipData = data.toString();
-        clipboardManager.setPrimaryClip(ClipData.newPlainText("MoneyButDaily export", "Data exported from MoneyButDaily on " + DateTime.now() + " with a length of: " + clipData.length()
-                + "\n\n" + clipData));
+        clipboardManager.setPrimaryClip(ClipData.newPlainText("MoneyButDaily export", "Data exported from MoneyButDaily on " + LocalDateTime.now() + " with a length of: " + clipData.length() + "\n\n" + clipData));
 
         //just for you jarrod
         Toast.makeText(this, "Export is now in your clipboard (prevents an sd card access permission request).", Toast.LENGTH_LONG).show();

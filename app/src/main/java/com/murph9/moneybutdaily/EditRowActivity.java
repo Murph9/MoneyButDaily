@@ -23,10 +23,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.murph9.moneybutdaily.database.Converters;
 import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.Row;
 
-import org.joda.time.DateTime;
+import java.time.LocalDateTime;
 
 public class EditRowActivity extends AppCompatActivity {
 
@@ -42,8 +43,8 @@ public class EditRowActivity extends AppCompatActivity {
 
     private TextView mValuePerDay;
 
-    private DateTime From = new DateTime();
-    private DateTime RepeatEnd = new DateTime();
+    private LocalDateTime From = LocalDateTime.now();
+    private LocalDateTime LastDay = null;
 
     private Row editRow;
     private final RowViewModel rowViewModel;
@@ -86,17 +87,17 @@ public class EditRowActivity extends AppCompatActivity {
             mEditLengthTypeView.setSelection(DayType.CAN_SELECT.indexOf(editRow.LengthType));
             mEditCategoryView.setText(editRow.Category);
             mEditIsIncomeView.setChecked(editRow.IsIncome);
-            mEditIsRepeatView.setChecked(editRow.RepeatType != DayType.None);
+            mEditIsRepeatView.setChecked(editRow.Repeats);
             mEditNotesView.setText(editRow.Note);
 
             From = editRow.From;
             TextView startDate = findViewById(R.id.startDateValue);
-            startDate.setText(From.toString(H.VIEW_YMD_FORMAT));
+            startDate.setText(H.formatDate(From, H.VIEW_YMD_FORMAT));
 
-            if (editRow.RepeatEnd != null) {
-                RepeatEnd = editRow.RepeatEnd;
+            if (editRow.LastDay != null) {
+                LastDay = editRow.LastDay;
                 TextView repeatDate = findViewById(R.id.repeatDateValue);
-                repeatDate.setText(RepeatEnd.toString(H.VIEW_YMD_FORMAT));
+                repeatDate.setText(H.formatDate(LastDay, H.VIEW_YMD_FORMAT));
             }
 
         } else {
@@ -108,7 +109,7 @@ public class EditRowActivity extends AppCompatActivity {
         //update the text box for the date
         if (From != null) {
             TextView startDate = findViewById(R.id.startDateValue);
-            startDate.setText(From.toString(H.VIEW_YMD_FORMAT));
+            startDate.setText(H.formatDate(From, H.VIEW_YMD_FORMAT));
         }
 
         //programmatically setting a button action
@@ -173,12 +174,10 @@ public class EditRowActivity extends AppCompatActivity {
     private Row generateRowFromView() {
         Row row = new Row();
         String amountStr = mEditAmountView.getText().toString();
-        if (amountStr.isEmpty())
-            amountStr = "0";
+        if (amountStr.isEmpty()) amountStr = "0";
+        if (amountStr.startsWith(".")) amountStr = "0"+amountStr; //prevent it starting with a .
         row.Amount = Float.parseFloat(amountStr);
-        row.From = new DateTime(EditRowActivity.this.From.year().get(),
-                EditRowActivity.this.From.monthOfYear().get(),
-                EditRowActivity.this.From.dayOfMonth().get(), 0, 0); //remove time information
+        row.From = H.getStartOfDay(From); //remove time information
 
         String lengthCountStr = mEditLengthCountView.getText().toString();
         if (lengthCountStr.isEmpty())
@@ -187,10 +186,10 @@ public class EditRowActivity extends AppCompatActivity {
         row.LengthType = DayType.valueOf(DayType.class, mEditLengthTypeView.getSelectedItem().toString());
         row.Category = mEditCategoryView.getText().toString().trim();
         row.IsIncome = mEditIsIncomeView.isChecked();
+        row.Repeats = mEditIsRepeatView.isChecked();
         if (mEditIsRepeatView.isChecked()) {
-            row.RepeatCount = row.LengthCount;
-            row.RepeatType = row.LengthType; //we are not supporting different lengths and repeat lengths here
-            row.RepeatEnd = EditRowActivity.this.RepeatEnd;
+            //only save if repeating
+            row.LastDay = EditRowActivity.this.LastDay;
         }
         row.Note = mEditNotesView.getText().toString().trim();
         return row;
@@ -228,50 +227,52 @@ public class EditRowActivity extends AppCompatActivity {
         DatePickerFragment frag = new DatePickerFragment();
         frag.setCallback(new DatePickerCallback() {
             @Override
-            public void setFields(DateTime date) {
+            public void setFields(LocalDateTime date) {
                 EditRowActivity.this.From = date;
                 TextView startDate = EditRowActivity.this.findViewById(R.id.startDateValue);
-                startDate.setText(EditRowActivity.this.From.toString(H.VIEW_YMD_FORMAT));
+                startDate.setText(H.formatDate(EditRowActivity.this.From, H.VIEW_YMD_FORMAT));
             }
         });
 
         Bundle args = new Bundle(1);
-        args.putLong(EditRowActivity.DatePickerFragment.EXTRA_INPUT, From.getMillis());
+        Long longArg = Converters.dateTimeToLong(From);
+        args.putLong(EditRowActivity.DatePickerFragment.EXTRA_INPUT, longArg != null ? longArg : -1L);
         frag.setArguments(args);
 
         frag.show(getFragmentManager(), "datePicker");
     }
 
     public void onInfoButtonClick(View view) {
-        Toast.makeText(this, "Set the first day on the last repeat this row applies on. For example the last monday for a repeating week entry.", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Set the last day this row applies on. Doesn't have to align with the repeating schedule", Toast.LENGTH_LONG).show();
     }
 
     public void onRepeatDateClick(View view) {
         DatePickerFragment frag = new DatePickerFragment();
         frag.setCallback(new DatePickerCallback() {
             @Override
-            public void setFields(DateTime date) {
-                EditRowActivity.this.RepeatEnd = date;
+            public void setFields(LocalDateTime date) {
+                EditRowActivity.this.LastDay = date;
                 TextView repeatDate = EditRowActivity.this.findViewById(R.id.repeatDateValue);
-                repeatDate.setText(EditRowActivity.this.RepeatEnd.toString(H.VIEW_YMD_FORMAT));
+                repeatDate.setText(H.formatDate(EditRowActivity.this.LastDay, H.VIEW_YMD_FORMAT));
             }
         });
 
         Bundle args = new Bundle(1);
-        args.putLong(EditRowActivity.DatePickerFragment.EXTRA_INPUT, RepeatEnd.getMillis());
+        Long longArg = Converters.dateTimeToLong(LastDay);
+        args.putLong(EditRowActivity.DatePickerFragment.EXTRA_INPUT, longArg != null ? longArg : -1L);
         frag.setArguments(args);
 
         frag.show(getFragmentManager(), "datePicker");
     }
 
     public interface DatePickerCallback {
-        void setFields(DateTime date);
+        void setFields(LocalDateTime date);
     }
 
     public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
         public static final String EXTRA_INPUT = "com.murph.moneybutdaily.DatePickerFragment.INPUT";
 
-        private DateTime inputDate;
+        private LocalDateTime inputDate;
 
         private DatePickerCallback callback;
         public void setCallback(DatePickerCallback callback) {
@@ -283,13 +284,13 @@ public class EditRowActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
 
             // Use the input or current date as the default date
-            this.inputDate = new DateTime();
+            this.inputDate = LocalDateTime.now();
 
             Bundle bundle = getArguments();
             if (bundle != null) {
                 long millis = getArguments().getLong(EXTRA_INPUT, -1);
                 if (millis != -1)
-                    this.inputDate = new DateTime(millis);
+                    this.inputDate = Converters.longToDateTime(millis);
             }
         }
 
@@ -297,12 +298,12 @@ public class EditRowActivity extends AppCompatActivity {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Create a new instance of DatePickerDialog and return it
             return new DatePickerDialog(getActivity(), this, this.inputDate.getYear(),
-                    this.inputDate.getMonthOfYear() - 1, this.inputDate.getDayOfMonth());
+                    this.inputDate.getMonth().ordinal(), this.inputDate.getDayOfMonth());
         }
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
             // Run the callback with the new date
-            callback.setFields(new DateTime(year,month + 1,day,0,0));
+            callback.setFields(LocalDateTime.of(year, month + 1, day, 0, 0));
         }
     }
 }

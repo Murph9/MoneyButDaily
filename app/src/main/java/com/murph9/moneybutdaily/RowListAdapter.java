@@ -1,7 +1,6 @@
 package com.murph9.moneybutdaily;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,11 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.Row;
-
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,8 +20,7 @@ import java.util.List;
 
 public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewHolder> {
 
-    private final DateTimeFormatter fromFormat;
-
+    private final String FORMAT = "yyy/MM/dd";
     private final LayoutInflater mInflater;
     private RowListActivity activity;
 
@@ -36,7 +30,6 @@ public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewH
 
     RowListAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
-        fromFormat = DateTimeFormat.forPattern("yyy/MM/dd");
     }
 
     public void addActivityCallback(RowListActivity rowListActivity) {
@@ -56,10 +49,10 @@ public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewH
             final Row r = mRows.get(position);
             holder.rowItem_Category.setText(r.Category);
             holder.rowItem_Amount.setText("$"+r.Amount);
-            holder.rowItem_StartDate.setText("@ "+r.From.toString(fromFormat));
+            holder.rowItem_StartDate.setText("@ "+ H.formatDate(r.From, FORMAT));
             holder.rowItem_LengthCount.setText(r.LengthCount+" x ");
             holder.rowItem_LengthType.setText(r.LengthType+"");
-            holder.rowItem_Repeat.setText(r.RepeatType != DayType.None ? "y" : "n");
+            holder.rowItem_Repeat.setText(r.Repeats ? "y" : "n");
             holder.rowItem_PerDay.setText("$"+H.to2Places(r.CalcPerDay())+"/day");
 
             //add listener for button press

@@ -19,8 +19,7 @@ import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.DayTypePeriod;
 import com.murph9.moneybutdaily.model.Row;
 
-import org.joda.time.DateTime;
-
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +122,7 @@ public class ReportActivity extends AppCompatActivity {
                 return;
         }
 
-        DayTypePeriod period = new DayTypePeriod(this.type, DateTime.now().withTimeAtStartOfDay()).nextPeriod(typeOffset);
+        DayTypePeriod period = new DayTypePeriod(this.type, H.getStartOfDay(LocalDateTime.now())).nextPeriod(typeOffset);
 
         //update the value at the top
         TextView date = findViewById(R.id.text_today);

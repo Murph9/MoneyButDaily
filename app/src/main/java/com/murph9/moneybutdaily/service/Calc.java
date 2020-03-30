@@ -5,9 +5,8 @@ import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.DayTypePeriod;
 import com.murph9.moneybutdaily.model.Row;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
-
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Calc {
+
     private final List<Range> _dayRanges = new LinkedList<>();
     private final List<String> _categories = new LinkedList<>();
     public List<String> GetCategories()
@@ -22,69 +22,56 @@ public class Calc {
         return _categories;
     }
 
+    private Cache<LocalDateTime, Collection<Row>> rowDayCache;
+
     private class Range {
-        DateTime dt1;
-        DateTime dt2;
-        DateTime dt3;
+        LocalDateTime start;
+        LocalDateTime end;
         Row row;
 
-        Range(DateTime dt1, DateTime dt2, DateTime dt3, Row row) {
-            this.dt1 = dt1;
-            this.dt2 = dt2;
-            this.dt3 = dt3;
+        Range(LocalDateTime start, LocalDateTime end, Row row) {
+            this.start = start;
+            this.end = end;
             this.row = row;
+        }
+
+        public boolean inRange(LocalDateTime time) {
+            if (start.isEqual(time) || end.isEqual(time))
+                return true; //boundary check says yes
+            return start.isBefore(time) && end.isAfter(time);
         }
     }
 
-    private DateTime firstEntryDate;
-
-    private Cache<DateTime, Collection<Row>> rowDayCache;
-
     public Calc(Collection<Row> data) {
         rowDayCache = new Cache<>();
-        firstEntryDate = new DateTime(Long.MIN_VALUE);
 
         if (data == null) {
             data = new LinkedList<>();
         }
 
         for (Row r: data) {
-            _dayRanges.add(new Range(r.From, r.CalcFirstPeriodEndDay(), r.CalcLastDay(), r));
+            _dayRanges.add(new Range(r.From, r.CalcLastDay(), r));
 
             if (!_categories.contains(r.Category))
                 _categories.add(r.Category);
-
-            //get min date
-            firstEntryDate = firstEntryDate.compareTo(r.From) > 0 ? r.From : firstEntryDate;
         }
     }
 
-    private Collection<Row> RowsForDay(DateTime day) {
-        Collection<Row> cacheValue = rowDayCache.get(day.withTimeAtStartOfDay());
+    private Collection<Row> RowsForDay(LocalDateTime day) {
+        Collection<Row> cacheValue = rowDayCache.get(day);
         if (cacheValue != null) {
             return cacheValue;
         }
 
         Collection<Row> list = new LinkedList<>();
-        for (Range range: _dayRanges)
-        {
-            //current day is before day to check, ignore
-            if (range.dt1.compareTo(day) > 0)
-                continue;
-
-            // repeat checking, if there is no repeat set and the end date is after, ignore
-            // the period is equal to the first day and the day before the last day
-            if ((range.row.RepeatCount == 0 || range.row.RepeatType == DayType.None) && range.dt2.compareTo(day) <= 0)
-                continue;
-
-            // also include repeat range last day start
-            if (range.dt3 != null && range.dt3.compareTo(day) <= 0)
+        for (Range range : _dayRanges) {
+            if (!range.inRange(day))
                 continue;
 
             list.add(range.row);
         }
 
-        rowDayCache.set(day.withTimeAtStartOfDay(), list);
+        rowDayCache.set(day, list);
         return list;
     }
 
@@ -119,7 +106,7 @@ public class Calc {
         return dict;
     }
 
-    private Map<String, Float> reportForDay(DateTime day) {
+    private Map<String, Float> reportForDay(LocalDateTime day) {
         Collection<Row> rows = RowsForDay(day);
         Map<String, Float> dict = new HashMap<>();
         for (Row row: rows)
@@ -133,14 +120,14 @@ public class Calc {
     }
 
     //PERF: kind of slow
-    private Map<String, Float> reportForWeek(DateTime day) {
-        //get start day of the week (monday)
+    private Map<String, Float> reportForWeek(LocalDateTime day) {
+        // get start day of the week (monday)
         day = H.startOfWeek(day);
 
         Map<String, Float> dict = reportForDay(day);
 
         day = day.plusDays(1);
-        while (day.dayOfWeek().get() != DateTimeConstants.MONDAY)
+        while (day.getDayOfWeek() != java.time.DayOfWeek.MONDAY)
         {
             Map<String, Float> newDayDict = reportForDay(day);
 
@@ -159,14 +146,13 @@ public class Calc {
     }
 
     //PERF: slow
-    private Map<String, Float> reportForMonth(DateTime day) {
-        //get the start of the month
+    private Map<String, Float> reportForMonth(LocalDateTime day) {
         day = H.startOfMonth(day);
 
         Map<String, Float> dict = reportForDay(day);
 
         day = day.plusDays(1);
-        while (day.dayOfMonth().get() != 1) //haha do while
+        while (day.getDayOfMonth() != 1) //haha do while
         {
             Map<String, Float> newDayDict = reportForDay(day);
 
@@ -185,8 +171,7 @@ public class Calc {
     }
 
     //PERF: really slow (probably causes way too many map<>s)
-    private Map<String, Float> reportForYear(DateTime day) {
-        //get the start of the year
+    private Map<String, Float> reportForYear(LocalDateTime day) {
         day = H.startOfYear(day);
 
         int year = day.getYear();
@@ -209,10 +194,5 @@ public class Calc {
         }
 
         return dict;
-    }
-
-
-    public DateTime getFirstDate() {
-        return this.firstEntryDate;
     }
 }

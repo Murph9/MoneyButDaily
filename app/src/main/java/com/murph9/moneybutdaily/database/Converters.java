@@ -4,24 +4,25 @@ import android.arch.persistence.room.TypeConverter;
 
 import com.murph9.moneybutdaily.model.DayType;
 
-import org.joda.time.DateTime;
-
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public class Converters {
     @TypeConverter
-    public static DateTime longToDateTime(Long value) {
+    public static LocalDateTime longToDateTime(Long value) {
         if (value == null)
             return null;
 
-        DateTime dt = new DateTime(value);
+        LocalDateTime dt = Instant.ofEpochMilli(value).atZone(ZoneId.systemDefault()).toLocalDateTime();
         return dt;
     }
 
     @TypeConverter
-    public static Long dateTimeToLong(DateTime date) {
-        return date == null ? null : date.getMillis();
+    public static Long dateTimeToLong(LocalDateTime date) {
+        if (date == null) return null;
+
+        return date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 
     @TypeConverter
