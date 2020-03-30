@@ -122,11 +122,4 @@ public class Row {
     {
         return Category + ": " + CalcPerDay();
     }
-
-    public String toExportString() {
-        Object[] list = new Object[] { this.Amount, this.LengthCount, this.LengthType,
-                this.Repeats, this.LastDay, this.Category, this.Note };
-        return TextUtils.join(", ", list);
-    }
 }
-

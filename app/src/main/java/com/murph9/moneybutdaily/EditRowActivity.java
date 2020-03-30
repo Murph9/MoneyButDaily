@@ -82,7 +82,7 @@ public class EditRowActivity extends AppCompatActivity {
 
             editRow = EditRowActivity.this.rowViewModel.get(lineId);
 
-            mEditAmountView.setText(editRow.Amount+"");
+            mEditAmountView.setText(H.to2Places(editRow.Amount));
             mEditLengthCountView.setText(editRow.LengthCount+"");
             mEditLengthTypeView.setSelection(DayType.CAN_SELECT.indexOf(editRow.LengthType));
             mEditCategoryView.setText(editRow.Category);

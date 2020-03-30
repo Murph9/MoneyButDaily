@@ -26,26 +26,21 @@
 
     <Button
         android:id="@+id/button_export"
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="48dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
         android:onClick="exportRows"
-        android:text="Export All"
+        android:text="Export"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageButton2"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/text_filter"
-        android:layout_width="165dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
+        android:layout_width="127dp"
+        android:layout_height="41dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:ems="10"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toStartOf="@+id/imageButton2"
@@ -57,13 +52,23 @@
         android:id="@+id/imageButton2"
         android:layout_width="46dp"
         android:layout_height="47dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="4dp"
         android:onClick="setFilter"
-        app:layout_constraintEnd_toStartOf="@+id/button_export"
+        app:layout_constraintEnd_toStartOf="@+id/button_import"
         app:layout_constraintStart_toEndOf="@+id/text_filter"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/ic_menu_search" />
+
+    <Button
+        android:id="@+id/button_import"
+        android:layout_width="88dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:onClick="importRows"
+        android:text="Import"
+        app:layout_constraintEnd_toStartOf="@+id/button_export"
+        app:layout_constraintStart_toEndOf="@+id/imageButton2"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     public static RowViewModel RowViewViewModel;
 
     //TODO these are available for use as settings
-    private static int COLOUR_DAY_SCALE = 30;
+    private static int COLOUR_DAY_SCALE = 60;
     private static int BAR_COUNT = 7;
     private static int BAR_FUTURE_COUNT = 1;
 
