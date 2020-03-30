@@ -32,8 +32,11 @@ public class DayTypePeriod {
         }
     }
 
-    public boolean contains(LocalDateTime test) {
-        return this.date.isBefore(test) && nextPeriod(1).date.minusDays(1).isAfter(test);
+    public boolean contains(LocalDateTime time) {
+        LocalDateTime lastDate = nextPeriod(1).date.minusDays(1);
+        if (this.date.isEqual(time) || lastDate.isEqual(time))
+            return true; //boundary check says yes
+        return this.date.isBefore(time) && lastDate.isAfter(time);
     }
     public boolean isAfter(LocalDateTime test) {
         return nextPeriod(1).date.isAfter(test);
