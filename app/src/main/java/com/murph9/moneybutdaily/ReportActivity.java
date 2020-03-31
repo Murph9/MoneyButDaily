@@ -132,10 +132,7 @@ public class ReportActivity extends AppCompatActivity {
         TableLayout reportView = findViewById(R.id.report_table);
         reportView.removeAllViews();
 
-        //header row
-        addRow(this, reportView, "Category", "Value");
-        addRow(this, reportView, "", "");
-
+        float max = calc.TotalFor(period);
         Map<String, Float> report = calc.ReportFor(period);
         float incomeTotal = 0;
         if (report != null) {
@@ -145,13 +142,12 @@ public class ReportActivity extends AppCompatActivity {
                     continue;
 
                 incomeTotal += entry.getValue();
-                addRow(this, reportView, entry.getKey(), H.to2Places(entry.getValue(), true));
+                addValueRow(this, reportView, entry.getKey(), entry.getValue(), max);
             }
         }
 
-        addRow(this, reportView, "______", "______");
-        addRow(this, reportView, "Total", H.to2Places(incomeTotal, true));
-        addRow(this, reportView, "", "");
+        addStringRow(this, reportView, "Income Total", H.to2Places(incomeTotal, true));
+        addStringRow(this, reportView, "", "");
         float expensesTotal = 0;
         if (report != null) {
             //then next the expenses
@@ -159,18 +155,30 @@ public class ReportActivity extends AppCompatActivity {
                 if (entry.getValue() >= 0)
                     continue;
                 expensesTotal += entry.getValue();
-                addRow(this, reportView, entry.getKey(), H.to2Places(entry.getValue(), true));
+                addValueRow(this, reportView, entry.getKey(), -entry.getValue(), max);
             }
         }
 
-        addRow(this, reportView, "______", "______");
-        addRow(this, reportView, "Total", H.to2Places(expensesTotal, true));
-        addRow(this, reportView, "", "");
+        addStringRow(this, reportView, "Exp Total",  H.to2Places(-expensesTotal, true));
+        addStringRow(this, reportView, "", "");
 
-        addRow(this, reportView, "Full Total", H.to2Places(expensesTotal + incomeTotal, true));
+        addStringRow(this, reportView, "Full Total", H.to2Places(expensesTotal + incomeTotal, true));
     }
 
-    private void addRow(Context context, TableLayout tl, String cat, String value) {
+    private void addValueRow(Context context, TableLayout tl, String cat, float value, float max) {
+        TableRow tr = new TableRow(context);
+
+        TextView view_cat = new TextView(context);
+        view_cat.setText(cat);
+        tr.addView(view_cat);
+
+        ProgressBar pb = new ProgressBar(context);
+        pb.setValues(max, value);
+        tr.addView(pb);
+
+        tl.addView(tr);
+    }
+    private void addStringRow(Context context, TableLayout tl, String cat, String value) {
         TableRow tr = new TableRow(context);
 
         TextView view_cat = new TextView(context);
