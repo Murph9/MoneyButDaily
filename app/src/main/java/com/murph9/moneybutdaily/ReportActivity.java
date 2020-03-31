@@ -136,7 +136,7 @@ public class ReportActivity extends AppCompatActivity {
         addRow(this, reportView, "Category", "Value");
         addRow(this, reportView, "", "");
 
-        Map<String, Float> report = calc.ReportFor(period); //TODO async
+        Map<String, Float> report = calc.ReportFor(period);
         float incomeTotal = 0;
         if (report != null) {
             //first only the income rows
@@ -145,12 +145,12 @@ public class ReportActivity extends AppCompatActivity {
                     continue;
 
                 incomeTotal += entry.getValue();
-                addRow(this, reportView, entry.getKey(), H.to2Places(entry.getValue()));
+                addRow(this, reportView, entry.getKey(), H.to2Places(entry.getValue(), true));
             }
         }
 
         addRow(this, reportView, "______", "______");
-        addRow(this, reportView, "Total", H.to2Places(incomeTotal));
+        addRow(this, reportView, "Total", H.to2Places(incomeTotal, true));
         addRow(this, reportView, "", "");
         float expensesTotal = 0;
         if (report != null) {
@@ -159,15 +159,15 @@ public class ReportActivity extends AppCompatActivity {
                 if (entry.getValue() >= 0)
                     continue;
                 expensesTotal += entry.getValue();
-                addRow(this, reportView, entry.getKey(), H.to2Places(entry.getValue()));
+                addRow(this, reportView, entry.getKey(), H.to2Places(entry.getValue(), true));
             }
         }
 
         addRow(this, reportView, "______", "______");
-        addRow(this, reportView, "Total", H.to2Places(expensesTotal));
+        addRow(this, reportView, "Total", H.to2Places(expensesTotal, true));
         addRow(this, reportView, "", "");
 
-        addRow(this, reportView, "Full Total", H.to2Places(expensesTotal + incomeTotal) +"");
+        addRow(this, reportView, "Full Total", H.to2Places(expensesTotal + incomeTotal, true));
     }
 
     private void addRow(Context context, TableLayout tl, String cat, String value) {
@@ -179,8 +179,8 @@ public class ReportActivity extends AppCompatActivity {
 
         TextView view_value = new TextView(context);
         view_value.setText(value);
+        view_value.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
         tr.addView(view_value);
-        //TODO align text right
 
         tl.addView(tr);
     }

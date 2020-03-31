@@ -36,8 +36,14 @@ public class H {
         return date.withDayOfYear(1);
     }
 
-    private static final DecimalFormat valueFormat = new DecimalFormat("#.##");
+    private static final DecimalFormat valueFormat = new DecimalFormat("0.##");
+    private static final DecimalFormat valueFormatZeros = new DecimalFormat("0.00");
     static String to2Places(float value) {
+        return to2Places(value, false);
+    }
+    static String to2Places(float value, boolean trailingZeros) {
+        if (trailingZeros)
+            return valueFormatZeros.format(value);
         return valueFormat.format(value);
     }
 
