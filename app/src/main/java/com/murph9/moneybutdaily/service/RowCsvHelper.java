@@ -6,8 +6,6 @@ import com.murph9.moneybutdaily.database.Converters;
 import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.Row;
 
-import java.time.LocalDateTime;
-
 public class RowCsvHelper {
     public static String convertToCsvRow(Row row) {
         Object[] list = new Object[] { row.Amount, row.IsIncome, row.From, row.LengthCount,

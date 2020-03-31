@@ -110,17 +110,16 @@ public class BarGraphView extends View {
 
         float scaledDensity = getResources().getDisplayMetrics().scaledDensity;
 
-        int width = canvas.getWidth();
-        int height = canvas.getHeight();
+        int width = getWidth();
+        int height = getHeight();
 
         if (bars == null || bars.size() < 1) {
             canvas.drawColor(rgb(200, 200, 200));
-            drawTextCenteredAt(canvas, paint, width/2, height/2, "BarGraphView: No data found", rgb(0,0,0));
+            drawTextCenteredAt(canvas, paint, width/2f, height/2f, "BarGraphView: No data found", rgb(0,0,0));
             return;
         }
 
-        //draw the entries as vertical rectangles across the canvas (using 80% of the space)
-        //TODO use this.density
+        //draw the entries as vertical rectangles across the canvas (using x% of the space)
         float widthPercent = 0.9f;
 
         float zeroPos = calcHeightPercentage(0, height);
@@ -136,27 +135,27 @@ public class BarGraphView extends View {
             paint.setColor(getColor(b.value, special));
             float barHeight = calcHeightPercentage(b.value, height);
             if (b.value > 0) {
-                canvas.drawRect(width * (1 - widthPercent) / 2 / count + width * (i) / count, barHeight, width * i / count + width * widthPercent / count, zeroPos, paint);
+                canvas.drawRect(width * (1 - widthPercent) / 2 / count + width * ((float)i) / count, barHeight, width * ((float)i) / count + width * widthPercent / count, zeroPos, paint);
             } else {
-                canvas.drawRect(width * (1 - widthPercent) / 2 / count + width * (i) / count, zeroPos, width * i / count + width * widthPercent / count, barHeight, paint);
+                canvas.drawRect(width * (1 - widthPercent) / 2 / count + width * ((float)i) / count, zeroPos, width * ((float)i) / count + width * widthPercent / count, barHeight, paint);
             }
 
             if (special == SpecialBar.Current) {
                 //draw today dashed as a highlight
                 paint.setStyle(Paint.Style.STROKE);
-                paint.setStrokeWidth(4); //TODO based on density please
+                paint.setStrokeWidth(4);
                 paint.setColor(rgb(0,0,0));
                 paint.setPathEffect(currentDash);
-                canvas.drawRect(width * (1 - widthPercent) / 2 / count + width * (i) / count, 0, width * i / count + width * widthPercent / count, height, paint);
+                canvas.drawRect(width * (1 - widthPercent) / 2 / count + width * ((float)i) / count, 0, width * ((float)i) / count + width * widthPercent / count, height, paint);
 
                 paint.setStyle(Paint.Style.FILL);
             }
 
             //value
-            drawTextCenteredAt(canvas, paint, width*i/count + width*widthPercent/2/count, Math.max(scaledDensity * 17 * 2.5f, barHeight), H.to2Places(bars.get(i).value), rgb(0,0,0));
+            drawTextCenteredAt(canvas, paint, width*((float)i)/count + width*widthPercent/2/count, Math.max(scaledDensity * 17 * 2.5f, barHeight), H.to2Places(bars.get(i).value), rgb(0,0,0));
 
             //label
-            drawTextCenteredAt(canvas, paint, width*i/count + width*widthPercent/2/count, scaledDensity * 17 * 1.5f, bars.get(i).label, rgb(0,0,0));
+            drawTextCenteredAt(canvas, paint, width*((float)i)/count + width*widthPercent/2/count, scaledDensity * 17 * 1.5f, bars.get(i).label, rgb(0,0,0));
         }
 
         //draw the 0 cross center line
@@ -181,9 +180,7 @@ public class BarGraphView extends View {
         //see through when future
 
         int alpha = 255;
-        if (special == SpecialBar.Current) {
-            //nothing special anymore
-        } else if (special == SpecialBar.Future) {
+        if (special == SpecialBar.Future) {
             alpha = 80;
         }
 

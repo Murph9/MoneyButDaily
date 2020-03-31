@@ -1,11 +1,9 @@
 package com.murph9.moneybutdaily.service;
 
 import com.murph9.moneybutdaily.H;
-import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.DayTypePeriod;
 import com.murph9.moneybutdaily.model.Row;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,7 +22,7 @@ public class Calc {
 
     private Cache<LocalDateTime, Collection<Row>> rowDayCache;
 
-    private class Range {
+    private static class Range {
         LocalDateTime start;
         LocalDateTime end;
         Row row;
@@ -35,7 +33,7 @@ public class Calc {
             this.row = row;
         }
 
-        public boolean inRange(LocalDateTime time) {
+        boolean inRange(LocalDateTime time) {
             if (start.isEqual(time) || end.isEqual(time))
                 return true; //boundary check says yes
             return start.isBefore(time) && end.isAfter(time);

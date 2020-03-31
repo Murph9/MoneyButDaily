@@ -18,7 +18,7 @@ public class H {
     public static final String VIEW_MD_FORMAT = "MMM-d";
     public static final String VIEW_YM_S_FORMAT = "yy-MMM";
 
-    public static LocalDateTime getStartOfDay(LocalDateTime date) {
+    static LocalDateTime getStartOfDay(LocalDateTime date) {
         return date.withHour(0).withMinute(0).withSecond(0).withNano(0);
     }
 
@@ -37,19 +37,19 @@ public class H {
     }
 
     private static final DecimalFormat valueFormat = new DecimalFormat("#.##");
-    public static String to2Places(float value) {
+    static String to2Places(float value) {
         return valueFormat.format(value);
     }
 
-    public static int ceilWithFactor(float value, int factor) {
+    static int ceilWithFactor(float value, int factor) {
         return (int)Math.ceil(value/(float)factor)*factor;
     }
-    public static int floorWithFactor(float value, int factor) {
+    static int floorWithFactor(float value, int factor) {
         return (int)Math.floor(value/(float)factor)*factor;
     }
 
     //https://stackoverflow.com/a/11648106/9353639
-    public static <K,V extends Comparable<? super V>> List<Map.Entry<K, V>> entriesSortedByValue(Map<K,V> map, final boolean desc) {
+    static <K,V extends Comparable<? super V>> List<Map.Entry<K, V>> entriesSortedByValue(Map<K, V> map, final boolean desc) {
 
         List<Map.Entry<K,V>> sortedEntries = new ArrayList<>(map.entrySet());
 

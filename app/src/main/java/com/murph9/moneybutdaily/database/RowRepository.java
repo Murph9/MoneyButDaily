@@ -26,16 +26,14 @@ public class RowRepository {
     public Row get(int lineId) {
         try {
             return new GetRowAsyncTask(mRowDao).execute(lineId).get(); //TODO not happy about this call
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         return null;
     }
     private static class GetRowAsyncTask extends AsyncTask<Integer, Void, Row> {
         private RowDao mAsyncTaskDao;
-        public GetRowAsyncTask(RowDao dao) {
+        GetRowAsyncTask(RowDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -59,7 +57,7 @@ public class RowRepository {
         enum Task {
             Insert,
             Update,
-            Delete;
+            Delete
         }
 
         private Task task;

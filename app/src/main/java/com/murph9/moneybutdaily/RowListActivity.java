@@ -18,7 +18,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.Row;
 import com.murph9.moneybutdaily.service.RowCsvHelper;
 import com.opencsv.CSVReader;
@@ -89,7 +88,6 @@ public class RowListActivity extends AppCompatActivity {
         input.setMaxLines(10);
         builder.setView(input);
 
-        String inputText = null;
         // Set up the buttons
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override

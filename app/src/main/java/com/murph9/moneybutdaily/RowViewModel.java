@@ -19,13 +19,13 @@ public class RowViewModel extends AndroidViewModel {
         mAllRows = mRepository.getAllRows();
     }
 
-    public LiveData<List<Row>> getAllRows() { return mAllRows; }
+    LiveData<List<Row>> getAllRows() { return mAllRows; }
 
     public Row get(int lineId) { return mRepository.get(lineId); }
 
-    public void insert(Row row) { mRepository.insert(row); }
+    void insert(Row row) { mRepository.insert(row); }
 
-    public void update(Row row) { mRepository.update(row); }
+    void update(Row row) { mRepository.update(row); }
 
-    public void delete(Row row) { mRepository.delete(row); }
+    void delete(Row row) { mRepository.delete(row); }
 }

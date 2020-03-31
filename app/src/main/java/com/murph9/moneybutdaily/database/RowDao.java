@@ -24,8 +24,8 @@ public interface RowDao {
     @Delete
     void delete(Row row);
 
-    @Query("DELETE FROM rows")
-    void deleteAll();
+//    @Query("DELETE FROM rows")
+//    void deleteAll();
 
     @Query("SELECT * from rows WHERE Line = :lineId ORDER BY Line ASC LIMIT 1")
     Row getSingle(int lineId);

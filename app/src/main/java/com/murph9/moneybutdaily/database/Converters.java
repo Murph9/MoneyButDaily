@@ -14,8 +14,7 @@ public class Converters {
         if (value == null)
             return null;
 
-        LocalDateTime dt = Instant.ofEpochMilli(value).atZone(ZoneId.systemDefault()).toLocalDateTime();
-        return dt;
+        return Instant.ofEpochMilli(value).atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
     @TypeConverter

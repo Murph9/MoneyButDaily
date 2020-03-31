@@ -23,11 +23,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-//General App TODO
-/*
-  test cases for the stupid day edge cases
-*/
-
 public class MainActivity extends AppCompatActivity {
 
     public static final int EDIT_ROW_ACTIVITY_REQUEST_CODE = 1;

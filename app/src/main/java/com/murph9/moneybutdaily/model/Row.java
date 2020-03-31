@@ -4,7 +4,6 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import java.time.LocalDateTime;
 
@@ -53,8 +52,6 @@ public class Row {
     public String Validate() {
         if (Amount <= 0)
             return "Amount is 0 or negative: " + Amount;
-        if (From == null) //im not convinced of this error
-            return "From start date not set";
         if (LengthCount == 0 && LengthType != DayType.Day)
             return "Length count cannot be 0, it is only valid for the day type.";
         if (LengthCount <= 0)

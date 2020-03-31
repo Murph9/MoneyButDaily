@@ -20,7 +20,7 @@ import java.util.List;
 
 public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewHolder> {
 
-    private final String FORMAT = "yyy/MM/dd";
+    private static final String FORMAT = "yyy/MM/dd";
     private final LayoutInflater mInflater;
     private RowListActivity activity;
 
@@ -32,7 +32,7 @@ public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewH
         mInflater = LayoutInflater.from(context);
     }
 
-    public void addActivityCallback(RowListActivity rowListActivity) {
+    void addActivityCallback(RowListActivity rowListActivity) {
         this.activity = rowListActivity;
     }
 
@@ -110,12 +110,12 @@ public class RowListAdapter extends RecyclerView.Adapter<RowListAdapter.RowViewH
     // mRows has not been updated (means initially, it's null, and we can't return null).
     @Override
     public int getItemCount() {
-        if (mRows != null) //TODO or fullRowList?
+        if (mRows != null)
             return mRows.size();
         else return 0;
     }
 
-    class RowViewHolder extends RecyclerView.ViewHolder {
+    static class RowViewHolder extends RecyclerView.ViewHolder {
         private final TextView rowItem_Category;
         private final TextView rowItem_Amount;
         private final TextView rowItem_StartDate;

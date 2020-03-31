@@ -6,7 +6,7 @@ public class Cache<K, T> {
 
     private HashMap<K, T> cache;
 
-    public Cache() {
+    Cache() {
         cache = new HashMap<>();
     }
 
@@ -16,7 +16,7 @@ public class Cache<K, T> {
         return null;
     }
 
-    public boolean set(K key, T value) {
-        return cache.put(key, value) != null;
+    void set(K key, T value) {
+        cache.put(key, value);
     }
 }
