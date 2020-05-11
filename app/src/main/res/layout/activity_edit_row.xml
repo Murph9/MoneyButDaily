@@ -34,7 +34,8 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="Amount"
-                android:inputType="numberDecimal" />
+                android:inputType="numberDecimal"
+                android:autofillHints="" />
 
             <CheckBox
                 android:id="@+id/is_income"
@@ -42,6 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Is Income" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -49,16 +51,39 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/edit_lengthcount"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="133dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:gravity="right"
-                android:hint="Length Count"
-                android:inputType="numberSigned"
-                android:singleLine="true" />
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/edit_lengthcount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:gravity="end"
+                    android:hint="Length Count"
+                    android:importantForAutofill="no"
+                    android:inputType="numberSigned"
+                    android:singleLine="true" />
+
+                <Button
+                    android:id="@+id/plusButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="onPlusButtonClick"
+                    android:text="+" />
+
+                <Button
+                    android:id="@+id/minusButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="onMinusButtonClick"
+                    android:text="-" />
+            </LinearLayout>
 
             <Spinner
                 android:id="@+id/edit_lengthtype"
@@ -70,6 +95,7 @@
                 android:id="@+id/text_per_day"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_weight="1"
                 android:text="$0/day" />
 
@@ -138,10 +164,10 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:adjustViewBounds="false"
+                android:contentDescription="@string/info"
                 android:cropToPadding="true"
                 android:onClick="onInfoButtonClick"
-                app:srcCompat="@android:drawable/ic_dialog_info"
-                android:contentDescription="@string/info" />
+                app:srcCompat="@android:drawable/ic_dialog_info" />
 
             <TextView
                 android:id="@+id/repeatDateLabel"
@@ -174,7 +200,8 @@
             android:ems="10"
             android:hint="Notes"
             android:inputType="textPersonName"
-            android:lines="2" />
+            android:lines="2"
+            android:importantForAutofill="no" />
 
         <Button
             android:id="@+id/button_save"

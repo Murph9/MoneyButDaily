@@ -175,14 +175,11 @@ public class EditRowActivity extends AppCompatActivity {
         Row row = new Row();
         String amountStr = mEditAmountView.getText().toString();
         if (amountStr.isEmpty()) amountStr = "0";
-        if (amountStr.startsWith(".")) amountStr = "0"+amountStr; //prevent it starting with a .
+        if (amountStr.startsWith(".")) amountStr = "0"+amountStr; //prevent it starting with a '.'
         row.Amount = Float.parseFloat(amountStr);
         row.From = H.getStartOfDay(From); //remove time information
 
-        String lengthCountStr = mEditLengthCountView.getText().toString();
-        if (lengthCountStr.isEmpty())
-            lengthCountStr = "0";
-        row.LengthCount = Integer.parseInt(lengthCountStr);
+        row.LengthCount = getIntFromString(mEditLengthCountView.getText().toString());
         row.LengthType = DayType.valueOf(DayType.class, mEditLengthTypeView.getSelectedItem().toString());
         row.Category = mEditCategoryView.getText().toString().trim();
         row.IsIncome = mEditIsIncomeView.isChecked();
@@ -198,6 +195,18 @@ public class EditRowActivity extends AppCompatActivity {
     private void updatePerDay() {
         String text = H.to2Places(generateRowFromView().CalcPerDay());
         mValuePerDay.setText(String.format(" $%s / day", text));
+    }
+
+    private int getIntFromString(String text) {
+        String lengthCountStr = text;
+        if (lengthCountStr.isEmpty())
+            lengthCountStr = "0";
+
+        try {
+            return Integer.parseInt(lengthCountStr);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     public void onDeleteClick(View view) {
@@ -263,6 +272,18 @@ public class EditRowActivity extends AppCompatActivity {
         frag.setArguments(args);
 
         frag.show(getFragmentManager(), "datePicker");
+    }
+
+    public void onPlusButtonClick(View view) {
+        int value = getIntFromString(mEditLengthCountView.getText().toString());
+        value++;
+        mEditLengthCountView.setText(Integer.toString(value));
+    }
+    public void onMinusButtonClick(View view) {
+        int value = getIntFromString(mEditLengthCountView.getText().toString());
+        value--;
+        value = Math.max(value, 1); //prevent anything but positive integers
+        mEditLengthCountView.setText(Integer.toString(value));
     }
 
     public interface DatePickerCallback {
