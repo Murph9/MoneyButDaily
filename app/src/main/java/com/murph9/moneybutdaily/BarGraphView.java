@@ -5,10 +5,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.murph9.moneybutdaily.service.CanvasHelper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -103,6 +104,10 @@ public class BarGraphView extends View {
         this.invalidate();
     }
 
+    public float getScale() {
+        return this.maxValue - this.minValue;
+    }
+
 
     @Override
     public void onDraw(Canvas canvas) {
@@ -115,7 +120,7 @@ public class BarGraphView extends View {
 
         if (bars == null || bars.size() < 1) {
             canvas.drawColor(rgb(200, 200, 200));
-            drawTextCenteredAt(canvas, paint, width/2f, height/2f, "BarGraphView: No data found", rgb(0,0,0));
+            CanvasHelper.drawTextCenteredAt(canvas, paint, width/2f, height/2f, "BarGraphView: No data found", rgb(0,0,0));
             return;
         }
 
@@ -152,10 +157,10 @@ public class BarGraphView extends View {
             }
 
             //value
-            drawTextCenteredAt(canvas, paint, width*((float)i)/count + width*widthPercent/2/count, Math.max(scaledDensity * 17 * 2.5f, barHeight), H.to2Places(bars.get(i).value), rgb(0,0,0));
+            CanvasHelper.drawTextCenteredAt(canvas, paint, width*((float)i)/count + width*widthPercent/2/count, Math.max(scaledDensity * 17 * 2.5f, barHeight), H.to2Places(bars.get(i).value), rgb(0,0,0));
 
             //label
-            drawTextCenteredAt(canvas, paint, width*((float)i)/count + width*widthPercent/2/count, scaledDensity * 17 * 1.5f, bars.get(i).label, rgb(0,0,0));
+            CanvasHelper.drawTextCenteredAt(canvas, paint, width*((float)i)/count + width*widthPercent/2/count, scaledDensity * 17 * 1.5f, bars.get(i).label, rgb(0,0,0));
         }
 
         //draw the 0 cross center line
@@ -190,22 +195,6 @@ public class BarGraphView extends View {
             return Color.argb(alpha, 255, (int)((Math.atan(val/(scale /3))/Math.PI*2 + 1)*255), 0);
         }
     }
-
-    //https://stackoverflow.com/a/32081250/9353639
-    private void drawTextCenteredAt(Canvas canvas, Paint paint, float xPos, float yPos, String text, int color) {
-        if (text == null || text.isEmpty())
-            return; //the most beautiful painting job is now done
-
-        paint.setTextAlign(Paint.Align.LEFT);
-        paint.setColor(color);
-
-        Rect r = new Rect();
-        paint.getTextBounds(text, 0, text.length(), r);
-        float x = xPos - r.width() / 2f - r.left;
-        float y = yPos - r.height() / 2f - r.bottom;
-        canvas.drawText(text, x, y, paint);
-    }
-
 
     //region listener related things
     private BarClickedListener barClickedListener;

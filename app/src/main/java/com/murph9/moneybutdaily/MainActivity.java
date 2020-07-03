@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 graphType = DayType.valueOf(DayType.class, mEditLengthTypeView.getSelectedItem().toString());
 
                 bgv.setColourScale(COLOUR_DAY_SCALE * DayTypePeriod.dayCountByType(graphType));
-                updateGraph();
+                updateGraphs();
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
@@ -90,20 +92,21 @@ public class MainActivity extends AppCompatActivity {
     private void setPageData(List<Row> rows) {
         calc = new Calc(rows);
 
-        float todayValue = calc.TotalFor(new DayTypePeriod(DayType.Day, LocalDateTime.now()));
+        float todayValue = calc.TotalFor(new DayTypePeriod(DayType.Day, LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0)));
         TextView todayText = findViewById(R.id.todayText);
-        todayText.setText(H.to2Places(todayValue));
+        todayText.setText(String.format(getString(R.string.today_value), H.to2Places(todayValue)));
 
-        updateGraph();
+        updateGraphs();
     }
 
-    private void updateGraph() {
+    private void updateGraphs() {
         String barDateFormat = DayTypePeriod.dateFormatByType(graphType);
 
         BarGraphView bgv = findViewById(R.id.bar_graph);
         List<BarGraphView.Bar> bars = new LinkedList<>();
         HashMap<BarGraphView.Bar, BarGraphView.SpecialBar> barSpecials = new HashMap<>();
 
+        //update basic graph
         LocalDateTime now = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0); //'no time'
         DayTypePeriod period = new DayTypePeriod(graphType, now);
         for (int i = 0; i < BAR_COUNT; i++) {
@@ -121,6 +124,24 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         bgv.updateBars(bars, barSpecials);
+
+        //clone the scale for the expense graph
+        float scale = bgv.getScale();
+
+        //update expenses graph
+        List<StackedBarGraphView.Bar> sbars = new LinkedList<>();
+        StackedBarGraphView sbgv = findViewById(R.id.stacked_bar_graph);
+        for (int i = 0; i < BAR_COUNT; i++) {
+            DayTypePeriod curPeriod = period.nextPeriod(i + graphOffset);
+            List<Pair<String, Float>> records = new LinkedList<>();
+            for (Map.Entry<String, Float> entry : calc.ReportFor(curPeriod).entrySet()) {
+                if (entry.getValue() < 0)
+                    records.add(new Pair<>(entry.getKey(), -entry.getValue()));
+            }
+            sbars.add(new StackedBarGraphView.Bar(records));
+        }
+
+        sbgv.updateBars(sbars, scale);
     }
 
     @Override
@@ -153,11 +174,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void addOffset(View view) {
         graphOffset++;
-        updateGraph();
+        updateGraphs();
     }
     public void minusOffset(View view) {
         graphOffset--;
-        updateGraph();
+        updateGraphs();
     }
 
 

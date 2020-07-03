@@ -4,32 +4,21 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.constraint.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:context=".MainActivity">
-
-    <TextView
-        android:id="@+id/todayLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="18dp"
-        android:text="@string/MainToday"
-        app:layout_constraintBaseline_toBaselineOf="@+id/todayText"
-        app:layout_constraintEnd_toStartOf="@+id/todayText"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/todayText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/todo"
+        android:textSize="24sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/add_button"
         app:layout_constraintEnd_toStartOf="@+id/add_button"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/todayLabel" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/add_button"
@@ -38,7 +27,7 @@
         android:layout_marginTop="8dp"
         android:onClick="addEntry"
         android:text="@string/AddEntry"
-        app:layout_constraintEnd_toStartOf="@+id/view_report"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/todayText"
         app:layout_constraintTop_toTopOf="parent" />
@@ -56,25 +45,22 @@
     <Button
         android:id="@+id/view_report"
         android:layout_width="wrap_content"
-        android:layout_height="45dp"
+        android:layout_height="wrap_content"
         android:onClick="viewReports"
         android:text="Reports"
-        app:layout_constraintBaseline_toBaselineOf="@+id/add_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/add_button" />
+        app:layout_constraintStart_toEndOf="@+id/graph_right"
+        app:layout_constraintTop_toBottomOf="@+id/add_button" />
 
     <Button
         android:id="@+id/viewRowList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
         android:onClick="viewRowList"
-        android:text="View Entries"
+        android:text="View All"
+        app:layout_constraintEnd_toStartOf="@+id/graph_left"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bar_graph" />
+        app:layout_constraintTop_toBottomOf="@+id/add_button" />
 
     <Button
         android:id="@+id/graph_left"
@@ -116,6 +102,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/add_button" />
+
+    <com.murph9.moneybutdaily.StackedBarGraphView
+        android:id="@+id/stacked_bar_graph"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Expenses"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bar_graph" />
 
 
 </android.support.constraint.ConstraintLayout>
