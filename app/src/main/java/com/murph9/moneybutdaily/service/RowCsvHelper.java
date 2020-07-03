@@ -6,6 +6,8 @@ import com.murph9.moneybutdaily.database.Converters;
 import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.Row;
 
+import java.time.LocalDateTime;
+
 public class RowCsvHelper {
     public static String convertToCsvRow(Row row) {
         Object[] list = new Object[] { row.Amount, row.IsIncome, row.From, row.LengthCount,
@@ -16,19 +18,19 @@ public class RowCsvHelper {
     public static Row convertFromCsvRow(String[] nextLine) {
         try {
             Row r = new Row();
-            r.Amount = Float.parseFloat(nextLine[0]);
+            r.Amount = Float.parseFloat(nextLine[0].trim());
             if (nextLine[1] != null && !nextLine[1].isEmpty())
-                r.IsIncome = nextLine[1].equals("1");
+                r.IsIncome = nextLine[1].trim().equals("true");
 
-            r.From = Converters.longToDateTime(Long.parseLong(nextLine[2]));
-            r.LengthCount = Integer.parseInt(nextLine[3]);
-            r.LengthType = DayType.valueOf(nextLine[4]);
-            r.Category = nextLine[5];
+            r.From = LocalDateTime.parse(nextLine[2].trim());
+            r.LengthCount = Integer.parseInt(nextLine[3].trim());
+            r.LengthType = DayType.valueOf(nextLine[4].trim());
+            r.Category = nextLine[5].trim();
             if (nextLine[6] != null && !nextLine[6].isEmpty())
-                r.Repeats = nextLine[6].equals("1");
-            if (nextLine[7] != null && !nextLine[7].isEmpty())
-                r.LastDay = Converters.longToDateTime(Long.parseLong(nextLine[7]));
-            r.Note = nextLine[8];
+                r.Repeats = nextLine[6].trim().equals("true");
+            if (nextLine[7] != null && !nextLine[7].isEmpty() && !nextLine[7].trim().equals("null"))
+                r.LastDay = LocalDateTime.parse(nextLine[7].trim());
+            r.Note = nextLine[8].trim();
             return r;
         } catch (Exception e) {
             return null;
