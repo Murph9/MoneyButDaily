@@ -44,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     private int graphOffset;
     private DayType graphType;
 
+    private Toast curToast;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +60,19 @@ public class MainActivity extends AppCompatActivity {
                 //calc clicked period
                 int offset = index + graphOffset;
                 viewReportPage(offset, graphType);
+            }
+        });
+
+        // My expense graph
+        final StackedBarGraphView sbgv = findViewById(R.id.stacked_bar_graph);
+        sbgv.setOnBarTouchedListener(new StackedBarGraphView.StackedBarClickedListener() {
+            @Override
+            public void onBarClicked(String category) {
+                if (curToast != null) {
+                    curToast.cancel(); //remove the previous one
+                }
+                curToast = Toast.makeText(MainActivity.this, category, Toast.LENGTH_SHORT);
+                curToast.show();
             }
         });
 
@@ -149,11 +164,8 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == EDIT_ROW_ACTIVITY_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Not saved", Toast.LENGTH_LONG).show();
-            }
+            curToast = Toast.makeText(this, resultCode == RESULT_OK ? "Saved" : "Not saved", Toast.LENGTH_SHORT);
+            curToast.show();
         }
     }
 

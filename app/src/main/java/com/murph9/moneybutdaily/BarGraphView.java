@@ -60,6 +60,11 @@ public class BarGraphView extends View {
         this.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    performClick();
+                    return false;
+                }
+
                 //based on the event, calc which bar was pressed
                 int index = (int)(event.getX() * bars.size()) / v.getWidth();
                 BarGraphView.this.barClickedListener.onBarClicked(index);
@@ -203,6 +208,12 @@ public class BarGraphView extends View {
     }
     public void setOnBarTouchedListener(BarClickedListener listener) {
         this.barClickedListener = listener;
+    }
+
+    @Override
+    public boolean performClick() {
+        super.performClick();
+        return true;
     }
     //end region
 }

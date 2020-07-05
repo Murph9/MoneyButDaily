@@ -4,8 +4,10 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Pair;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.murph9.moneybutdaily.service.CanvasHelper;
@@ -13,15 +15,16 @@ import com.murph9.moneybutdaily.service.CanvasHelper;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
 import static android.graphics.Color.rgb;
 
 public class StackedBarGraphView extends View {
-    private Paint paint;
+    private final Paint paint = new Paint();
     private List<Bar> bars;
-    private float maxValue;
+    private final List<Pair<String, RectF>> cachedRect = new LinkedList<>();;
 
     static class Bar {
         private final List<Pair<String, Float>> values;
@@ -30,7 +33,7 @@ public class StackedBarGraphView extends View {
             Collections.sort(this.values, getComparator());
         }
 
-        public List<Pair<String, Float>> getInOrder() {
+        public List<Pair<String, Float>> getBars() {
             return this.values;
         }
 
@@ -57,9 +60,27 @@ public class StackedBarGraphView extends View {
     }
 
     private void init() {
-        this.paint = new Paint();
         this.paint.setStyle(Paint.Style.FILL);
         this.paint.setTextSize(getResources().getDisplayMetrics().scaledDensity * 17);
+
+        this.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    performClick();
+                    return false;
+                }
+
+                //based on the event, calc which rectangle was pressed
+                for (Pair<String, RectF> r: StackedBarGraphView.this.cachedRect) {
+                    if (r.second.contains(event.getX(), event.getY())) {
+                        StackedBarGraphView.this.barClickedListener.onBarClicked(r.first);
+                        break;
+                    }
+                }
+                return false;
+            }
+        });
     }
 
     public void updateBars(List<Bar> bars, float maxValue) {
@@ -68,8 +89,28 @@ public class StackedBarGraphView extends View {
             return;
         }
 
-        this.maxValue = H.ceilWithFactor(maxValue, (int)50);
+        this.cachedRect.clear();
+        maxValue = H.ceilWithFactor(maxValue, (int)50);
         this.invalidate();
+
+
+        // compute rectangles vertically across the canvas (using x% of the space)
+        final float widthPercent = 0.9f;
+        final int width = getWidth();
+        final int height = getHeight();
+        final int count = bars.size();
+        for (int i = 0; i < count; i++) {
+            Bar b = bars.get(i);
+
+            float cur = 0;
+            for (Pair<String, Float> p: b.getBars()) {
+                float barHeight = height*p.second/maxValue;
+                RectF r = new RectF(width * (1 - widthPercent) / 2 / count + width * ((float)i) / count, cur,
+                        width * ((float)i) / count + width * widthPercent / count, cur+barHeight);
+                cachedRect.add(new Pair<>(p.first, r));
+                cur += barHeight;
+            }
+        }
     }
 
     @Override
@@ -87,21 +128,9 @@ public class StackedBarGraphView extends View {
             return;
         }
 
-        //draw the entries as vertical rectangles across the canvas (using x% of the space)
-        float widthPercent = 0.9f;
-
-        int count = bars.size();
-        for (int i = 0; i < count; i++) {
-            Bar b = bars.get(i);
-
-            float cur = 0;
-            for (Pair<String, Float> p: b.getInOrder()) {
-                paint.setColor(getColorForType(p.first));
-                float barHeight = height*p.second/this.maxValue;
-                canvas.drawRect(width * (1 - widthPercent) / 2 / count + width * ((float)i) / count, cur,
-                        width * ((float)i) / count + width * widthPercent / count, cur+barHeight, paint);
-                cur += barHeight;
-            }
+        for (Pair<String, RectF> p: this.cachedRect) {
+            paint.setColor(getColorForType(p.first));
+            canvas.drawRect(p.second, paint);
         }
     }
 
@@ -116,4 +145,20 @@ public class StackedBarGraphView extends View {
         typeMap.put(value, col);
         return col;
     }
+
+    //region listener related things
+    private StackedBarGraphView.StackedBarClickedListener barClickedListener;
+    public interface StackedBarClickedListener {
+        void onBarClicked(String category);
+    }
+    public void setOnBarTouchedListener(StackedBarGraphView.StackedBarClickedListener listener) {
+        this.barClickedListener = listener;
+    }
+
+    @Override
+    public boolean performClick() {
+        super.performClick();
+        return true;
+    }
+    //end region
 }
