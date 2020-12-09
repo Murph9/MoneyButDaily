@@ -148,10 +148,10 @@ public class MainActivity extends AppCompatActivity {
         StackedBarGraphView sbgv = findViewById(R.id.stacked_bar_graph);
         for (int i = 0; i < BAR_COUNT; i++) {
             DayTypePeriod curPeriod = period.nextPeriod(i + graphOffset);
-            List<Pair<String, Float>> records = new LinkedList<>();
+            List<StackedBarGraphView.BarSegment> records = new LinkedList<>();
             for (Map.Entry<String, Float> entry : calc.ReportFor(curPeriod).entrySet()) {
                 if (entry.getValue() < 0)
-                    records.add(new Pair<>(entry.getKey(), -entry.getValue()));
+                    records.add(new StackedBarGraphView.BarSegment(entry.getKey(), -entry.getValue()));
             }
             sbars.add(new StackedBarGraphView.Bar(records));
         }

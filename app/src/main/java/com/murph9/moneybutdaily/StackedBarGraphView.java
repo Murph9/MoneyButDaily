@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.MotionEvent;
@@ -13,7 +14,6 @@ import com.murph9.moneybutdaily.service.CanvasHelper;
 import com.murph9.moneybutdaily.service.CategoryColourService;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,25 +22,31 @@ import static android.graphics.Color.rgb;
 public class StackedBarGraphView extends View {
     private final Paint paint = new Paint();
     private List<Bar> bars;
-    private final List<Pair<String, RectF>> cachedRect = new LinkedList<>();
+    private final List<Pair<BarSegment, RectF>> cachedRect = new LinkedList<>();
 
     static class Bar {
-        private final List<Pair<String, Float>> values;
-        Bar(List<Pair<String, Float>> values) {
+        private final List<BarSegment> values;
+        Bar(List<BarSegment> values) {
             this.values = values;
-            Collections.sort(this.values, getComparator());
+            Collections.sort(this.values);
         }
 
-        public List<Pair<String, Float>> getBars() {
+        public List<BarSegment> getBars() {
             return this.values;
         }
+    }
 
-        private static Comparator<Pair<String, Float>> getComparator() {
-            return new Comparator<Pair<String, Float>>(){
-                public int compare(Pair<String, Float> obj1, Pair<String, Float> obj2) {
-                    return obj2.second.compareTo(obj1.second); //desc
-                }
-            };
+    static class BarSegment implements Comparable<BarSegment> {
+        public final String label;
+        public final Float value;
+        public BarSegment(String label, float value) {
+            this.label = label;
+            this.value = value;
+        }
+
+        @Override
+        public int compareTo(@NonNull BarSegment barSegment) {
+            return barSegment.value.compareTo(this.value); // desc
         }
     }
 
@@ -70,9 +76,9 @@ public class StackedBarGraphView extends View {
                 }
 
                 //based on the event, calc which rectangle was pressed
-                for (Pair<String, RectF> r: StackedBarGraphView.this.cachedRect) {
+                for (Pair<BarSegment, RectF> r: StackedBarGraphView.this.cachedRect) {
                     if (r.second.contains(event.getX(), event.getY())) {
-                        StackedBarGraphView.this.barClickedListener.onBarClicked(r.first);
+                        StackedBarGraphView.this.barClickedListener.onBarClicked(r.first.label + " ("+H.to2Places(r.first.value) + ")");
                         break;
                     }
                 }
@@ -101,11 +107,11 @@ public class StackedBarGraphView extends View {
             Bar b = bars.get(i);
 
             float cur = 0;
-            for (Pair<String, Float> p: b.getBars()) {
-                float barHeight = height*p.second/maxValue;
+            for (BarSegment p: b.getBars()) {
+                float barHeight = height*p.value/maxValue;
                 RectF r = new RectF(width * (1 - widthPercent) / 2 / count + width * ((float)i) / count, cur,
                         width * ((float)i) / count + width * widthPercent / count, cur+barHeight);
-                cachedRect.add(new Pair<>(p.first, r));
+                cachedRect.add(new Pair<>(p, r));
                 cur += barHeight;
             }
         }
@@ -126,8 +132,8 @@ public class StackedBarGraphView extends View {
             return;
         }
 
-        for (Pair<String, RectF> p: this.cachedRect) {
-            paint.setColor(CategoryColourService.colourForCategory(p.first));
+        for (Pair<BarSegment, RectF> p: this.cachedRect) {
+            paint.setColor(CategoryColourService.colourForCategory(p.first.label));
             canvas.drawRect(p.second, paint);
         }
     }
