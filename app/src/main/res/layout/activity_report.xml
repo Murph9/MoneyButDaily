@@ -78,7 +78,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:text="no idea"
+        android:text="@string/report_no_idea"
         app:layout_constraintBaseline_toBaselineOf="@+id/next_report"
         app:layout_constraintEnd_toStartOf="@+id/next_report"
         app:layout_constraintStart_toEndOf="@+id/prev_report" />
@@ -126,7 +126,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:onClick="resetOffset"
-        android:text="Now"
+        android:text="@string/report_now"
         app:layout_constraintEnd_toStartOf="@+id/prev_report"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/report_tab_Layout" />

@@ -47,7 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="viewReports"
-        android:text="Reports"
+        android:text="@string/main_reports"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/graph_right"
         app:layout_constraintTop_toBottomOf="@+id/add_button" />
@@ -57,7 +57,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="viewRowList"
-        android:text="View All"
+        android:text="@string/main_view_all"
         app:layout_constraintEnd_toStartOf="@+id/graph_left"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/add_button" />
@@ -68,9 +68,8 @@
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
         android:onClick="minusOffset"
-        android:text="&lt;"
+        android:text="@string/main_lt"
         app:layout_constraintBottom_toBottomOf="@+id/graph_lengthtype"
         app:layout_constraintEnd_toStartOf="@+id/graph_lengthtype"
         app:layout_constraintTop_toTopOf="@+id/graph_lengthtype" />
@@ -80,10 +79,9 @@
         style="@style/Widget.AppCompat.Button.Small"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:onClick="addOffset"
-        android:text="&gt;"
+        android:text="@string/main_gt"
         app:layout_constraintBottom_toBottomOf="@+id/graph_lengthtype"
         app:layout_constraintStart_toEndOf="@+id/graph_lengthtype"
         app:layout_constraintTop_toTopOf="@+id/graph_lengthtype" />
@@ -116,7 +114,7 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Expenses"
+        android:text="@string/main_expenses"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bar_graph" />
