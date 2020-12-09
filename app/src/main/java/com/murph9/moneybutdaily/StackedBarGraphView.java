@@ -1,28 +1,20 @@
 package com.murph9.moneybutdaily;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
-import android.util.Pair;
-import android.view.MotionEvent;
-import android.view.View;
 
-import com.murph9.moneybutdaily.service.CanvasHelper;
 import com.murph9.moneybutdaily.service.CategoryColourService;
 
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 
-import static android.graphics.Color.rgb;
+public class StackedBarGraphView extends RectFCanvasView {
 
-public class StackedBarGraphView extends View {
-    private final Paint paint = new Paint();
-    private List<Bar> bars;
-    private final List<Pair<BarSegment, RectF>> cachedRect = new LinkedList<>();
+    private final static String NO_DATA_MESSAGE = "Stacked BarGraphView: No data found";
+    private final HashMap<Rect, BarSegment> cachedRect = new HashMap<>();
 
     static class Bar {
         private final List<BarSegment> values;
@@ -50,53 +42,31 @@ public class StackedBarGraphView extends View {
         }
     }
 
+
     public StackedBarGraphView(Context context) {
         super(context);
-        init();
+        noDataFoundMessage = NO_DATA_MESSAGE;
     }
     public StackedBarGraphView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        noDataFoundMessage = NO_DATA_MESSAGE;
     }
     public StackedBarGraphView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init();
+        noDataFoundMessage = NO_DATA_MESSAGE;
     }
 
-    private void init() {
-        this.paint.setStyle(Paint.Style.FILL);
-        this.paint.setTextSize(getResources().getDisplayMetrics().scaledDensity * 17);
-
-        this.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    performClick();
-                    return false;
-                }
-
-                //based on the event, calc which rectangle was pressed
-                for (Pair<BarSegment, RectF> r: StackedBarGraphView.this.cachedRect) {
-                    if (r.second.contains(event.getX(), event.getY())) {
-                        StackedBarGraphView.this.barClickedListener.onBarClicked(r.first.label + " ("+H.to2Places(r.first.value) + ")");
-                        break;
-                    }
-                }
-                return false;
-            }
-        });
-    }
 
     public void updateBars(List<Bar> bars, float maxValue) {
-        this.bars = bars;
+        this.cachedRect.clear();
+
         if (bars == null) {
+            updateRect(null);
             return;
         }
 
-        this.cachedRect.clear();
         maxValue = H.ceilWithFactor(maxValue, (int)50);
         this.invalidate();
-
 
         // compute rectangles vertically across the canvas (using x% of the space)
         final float widthPercent = 0.9f;
@@ -109,36 +79,26 @@ public class StackedBarGraphView extends View {
             float cur = 0;
             for (BarSegment p: b.getBars()) {
                 float barHeight = height*p.value/maxValue;
-                RectF r = new RectF(width * (1 - widthPercent) / 2 / count + width * ((float)i) / count, cur,
+                RectF rf = new RectF(width * (1 - widthPercent) / 2 / count + width * ((float)i) / count, cur,
                         width * ((float)i) / count + width * widthPercent / count, cur+barHeight);
-                cachedRect.add(new Pair<>(p, r));
+
+                Rect r = new Rect(CategoryColourService.colourForCategory(p.label), rf);
+                cachedRect.put(r, p);
+
                 cur += barHeight;
             }
         }
+
+        updateRect(cachedRect.keySet());
     }
 
-    @Override
-    public void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-        int width = getWidth();
-        int height = getHeight();
-
-        paint.setStrokeWidth(getResources().getDisplayMetrics().scaledDensity*2);
-
-        if (bars == null || bars.size() < 1) {
-            canvas.drawColor(rgb(200, 200, 200));
-            CanvasHelper.drawTextCenteredAt(canvas, paint, width/2f, height/2f, "Stacked BarGraphView: No data found", rgb(0,0,0));
-            return;
-        }
-
-        for (Pair<BarSegment, RectF> p: this.cachedRect) {
-            paint.setColor(CategoryColourService.colourForCategory(p.first.label));
-            canvas.drawRect(p.second, paint);
+    public void rectClicked(Rect r) {
+        if (barClickedListener != null && this.cachedRect.containsKey(r)) {
+            BarSegment seg = this.cachedRect.get(r);
+            barClickedListener.onBarClicked(seg.label + " ("+H.to2Places(seg.value) + ")");
         }
     }
 
-    //region listener related things
     private StackedBarGraphView.StackedBarClickedListener barClickedListener;
     public interface StackedBarClickedListener {
         void onBarClicked(String category);
@@ -146,11 +106,4 @@ public class StackedBarGraphView extends View {
     public void setOnBarTouchedListener(StackedBarGraphView.StackedBarClickedListener listener) {
         this.barClickedListener = listener;
     }
-
-    @Override
-    public boolean performClick() {
-        super.performClick();
-        return true;
-    }
-    //end region
 }

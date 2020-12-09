@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -67,11 +66,11 @@ public class MainActivity extends AppCompatActivity {
         final StackedBarGraphView sbgv = findViewById(R.id.stacked_bar_graph);
         sbgv.setOnBarTouchedListener(new StackedBarGraphView.StackedBarClickedListener() {
             @Override
-            public void onBarClicked(String category) {
+            public void onBarClicked(String text) {
                 if (curToast != null) {
                     curToast.cancel(); //remove the previous one
                 }
-                curToast = Toast.makeText(MainActivity.this, category, Toast.LENGTH_SHORT);
+                curToast = Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT);
                 curToast.show();
             }
         });
