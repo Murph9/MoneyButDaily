@@ -2,7 +2,6 @@ package com.murph9.moneybutdaily;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
@@ -11,20 +10,19 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.murph9.moneybutdaily.service.CanvasHelper;
+import com.murph9.moneybutdaily.service.CategoryColourService;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import static android.graphics.Color.rgb;
 
 public class StackedBarGraphView extends View {
     private final Paint paint = new Paint();
     private List<Bar> bars;
-    private final List<Pair<String, RectF>> cachedRect = new LinkedList<>();;
+    private final List<Pair<String, RectF>> cachedRect = new LinkedList<>();
 
     static class Bar {
         private final List<Pair<String, Float>> values;
@@ -129,21 +127,9 @@ public class StackedBarGraphView extends View {
         }
 
         for (Pair<String, RectF> p: this.cachedRect) {
-            paint.setColor(getColorForType(p.first));
+            paint.setColor(CategoryColourService.colourForCategory(p.first));
             canvas.drawRect(p.second, paint);
         }
-    }
-
-    //good design i know, TODO make into a service so it at least doesn't change on one load of the application
-    private static final HashMap<String, Integer> typeMap = new HashMap<>();
-    private final Random colRnd = new Random();
-    private Integer getColorForType(String value) {
-        if (typeMap.containsKey(value))
-            return typeMap.get(value);
-
-        int col = Color.rgb(colRnd.nextInt(256), colRnd.nextInt(256), colRnd.nextInt(256));
-        typeMap.put(value, col);
-        return col;
     }
 
     //region listener related things

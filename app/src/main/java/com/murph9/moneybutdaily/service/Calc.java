@@ -1,5 +1,7 @@
 package com.murph9.moneybutdaily.service;
 
+import android.graphics.Color;
+
 import com.murph9.moneybutdaily.H;
 import com.murph9.moneybutdaily.model.DayTypePeriod;
 import com.murph9.moneybutdaily.model.Row;
@@ -10,11 +12,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class Calc {
 
     private final List<Range> _dayRanges = new LinkedList<>();
     private final List<String> _categories = new LinkedList<>();
+
     public List<String> GetCategories()
     {
         return _categories;
