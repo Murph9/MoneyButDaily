@@ -18,14 +18,22 @@ public class StackedBarGraphView extends RectFCanvasView {
 
     static class Bar {
         private final List<BarSegment> values;
+        private final float maxValue;
         Bar(List<BarSegment> values) {
             this.values = values;
             Collections.sort(this.values);
+
+            float maxValue = 0;
+            for (BarSegment bs: values) {
+                maxValue += bs.value;
+            }
+            this.maxValue = maxValue;
         }
 
         public List<BarSegment> getBars() {
             return this.values;
         }
+        public float getMax() { return this.maxValue; }
     }
 
     static class BarSegment implements Comparable<BarSegment> {
@@ -57,7 +65,7 @@ public class StackedBarGraphView extends RectFCanvasView {
     }
 
 
-    public void updateBars(List<Bar> bars, float maxValue) {
+    public void updateBars(List<Bar> bars) {
         this.cachedRect.clear();
 
         if (bars == null) {
@@ -65,14 +73,19 @@ public class StackedBarGraphView extends RectFCanvasView {
             return;
         }
 
-        maxValue = H.ceilWithFactor(maxValue, (int)50);
         this.invalidate();
+
+        float maxValue = 20; //min of 20
+        for (Bar b: bars) {
+            maxValue = Math.max(maxValue, b.getMax());
+        }
 
         // compute rectangles vertically across the canvas (using x% of the space)
         final float widthPercent = 0.9f;
         final int width = getWidth();
         final int height = getHeight();
         final int count = bars.size();
+
         for (int i = 0; i < count; i++) {
             Bar b = bars.get(i);
 

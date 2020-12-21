@@ -20,7 +20,7 @@ public class BarGraphView extends View {
 
     private static final DashPathEffect currentDash = new DashPathEffect(new float[] {10,10}, 5);
 
-    private float scale;
+    private float scale = 1;
     private HashMap<Bar, SpecialBar> specialBars;
     private List<Bar> bars;
 
@@ -73,16 +73,9 @@ public class BarGraphView extends View {
         });
     }
 
-    public void init(float scale) {
-        setColourScale(scale);
-
+    public void init() {
         this.paint.setStyle(Paint.Style.FILL);
         this.paint.setTextSize(getResources().getDisplayMetrics().scaledDensity * 17);
-    }
-    public void setColourScale(float scale) {
-        if (this.scale <= 0)
-            scale = 1; //my sanity is important
-        this.scale = scale;
     }
 
     public void updateBars(List<Bar> bars, HashMap<Bar, SpecialBar> specials) {
@@ -105,6 +98,10 @@ public class BarGraphView extends View {
         //NOTE: isn't really noticeable
         maxValue = H.ceilWithFactor(maxValue, (int)scale);
         minValue = H.floorWithFactor(minValue, (int)scale);
+        this.scale = 20;
+        for (Bar b: bars) {
+            this.scale = Math.max(this.scale, b.value);
+        }
 
         this.invalidate();
     }

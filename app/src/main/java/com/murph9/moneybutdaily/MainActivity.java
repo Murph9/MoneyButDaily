@@ -31,8 +31,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int ROW_LIST_ACTIVITY_REQUEST_CODE = 3;
     public static RowViewModel RowViewViewModel;
 
-    //TODO these are available for use as settings
-    private static int COLOUR_DAY_SCALE = 60;
+    //TODO these should be available for use as settings
     private static int BAR_COUNT = 7;
     private static int BAR_FUTURE_COUNT = 1;
 
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         //My BarGraph
         final BarGraphView bgv = findViewById(R.id.bar_graph);
-        bgv.init(COLOUR_DAY_SCALE); //color scale
+        bgv.init();
         bgv.setOnBarTouchedListener(new BarGraphView.BarClickedListener() {
             @Override
             public void onBarClicked(int index) {
@@ -95,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
                 graphOffset = -BAR_COUNT + 1 + BAR_FUTURE_COUNT;
                 graphType = DayType.valueOf(DayType.class, mEditLengthTypeView.getSelectedItem().toString());
 
-                bgv.setColourScale(COLOUR_DAY_SCALE * DayTypePeriod.dayCountByType(graphType));
                 updateGraphs();
             }
             @Override
@@ -139,9 +137,6 @@ public class MainActivity extends AppCompatActivity {
         }
         bgv.updateBars(bars, barSpecials);
 
-        //clone the scale for the expense graph
-        float scale = bgv.getScale();
-
         //update expenses graph
         List<StackedBarGraphView.Bar> sbars = new LinkedList<>();
         StackedBarGraphView sbgv = findViewById(R.id.stacked_bar_graph);
@@ -154,8 +149,7 @@ public class MainActivity extends AppCompatActivity {
             }
             sbars.add(new StackedBarGraphView.Bar(records));
         }
-
-        sbgv.updateBars(sbars, scale);
+        sbgv.updateBars(sbars);
     }
 
     @Override

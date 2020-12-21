@@ -4,121 +4,122 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
-<android.support.constraint.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/todayText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/todo"
-        android:textSize="24sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/add_button"
-        app:layout_constraintEnd_toStartOf="@+id/add_button"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/add_button"
-        android:layout_width="wrap_content"
-        android:layout_height="45dp"
-        android:layout_marginTop="8dp"
-        android:onClick="addEntry"
-        android:text="@string/AddEntry"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/todayText"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.murph9.moneybutdaily.BarGraphView
-        android:id="@+id/bar_graph"
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:background="@android:color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/graph_right" />
-
-    <Button
-        android:id="@+id/view_report"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="viewReports"
-        android:text="@string/main_reports"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/graph_right"
-        app:layout_constraintTop_toBottomOf="@+id/add_button" />
+        tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/viewRowList"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="viewRowList"
-        android:text="@string/main_view_all"
-        app:layout_constraintEnd_toStartOf="@+id/graph_left"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_button" />
+        <TextView
+            android:id="@+id/todayText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/todo"
+            android:textSize="24sp"
+            app:layout_constraintBaseline_toBaselineOf="@+id/add_button"
+            app:layout_constraintEnd_toStartOf="@+id/add_button"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/graph_left"
-        style="@style/Widget.AppCompat.Button.Small"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_marginEnd="8dp"
-        android:onClick="minusOffset"
-        android:text="@string/main_lt"
-        app:layout_constraintBottom_toBottomOf="@+id/graph_lengthtype"
-        app:layout_constraintEnd_toStartOf="@+id/graph_lengthtype"
-        app:layout_constraintTop_toTopOf="@+id/graph_lengthtype" />
+        <Button
+            android:id="@+id/add_button"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:layout_marginTop="8dp"
+            android:onClick="addEntry"
+            android:text="@string/AddEntry"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/todayText"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/graph_right"
-        style="@style/Widget.AppCompat.Button.Small"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_marginStart="8dp"
-        android:onClick="addOffset"
-        android:text="@string/main_gt"
-        app:layout_constraintBottom_toBottomOf="@+id/graph_lengthtype"
-        app:layout_constraintStart_toEndOf="@+id/graph_lengthtype"
-        app:layout_constraintTop_toTopOf="@+id/graph_lengthtype" />
+        <com.murph9.moneybutdaily.BarGraphView
+            android:id="@+id/bar_graph"
+            android:layout_width="match_parent"
+            android:layout_height="175dp"
+            android:background="@android:color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/graph_right" />
 
-    <Spinner
-        android:id="@+id/graph_lengthtype"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_weight="1"
-        android:entries="@string/todo"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_button" />
+        <Button
+            android:id="@+id/view_report"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="viewReports"
+            android:text="@string/main_reports"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/graph_right"
+            app:layout_constraintTop_toBottomOf="@+id/add_button" />
 
-    <com.murph9.moneybutdaily.StackedBarGraphView
-        android:id="@+id/stacked_bar_graph"
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        <Button
+            android:id="@+id/viewRowList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="viewRowList"
+            android:text="@string/main_view_all"
+            app:layout_constraintEnd_toStartOf="@+id/graph_left"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/add_button" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/main_expenses"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bar_graph" />
+        <Button
+            android:id="@+id/graph_left"
+            style="@style/Widget.AppCompat.Button.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:onClick="minusOffset"
+            android:text="@string/main_lt"
+            app:layout_constraintBottom_toBottomOf="@+id/graph_lengthtype"
+            app:layout_constraintEnd_toStartOf="@+id/graph_lengthtype"
+            app:layout_constraintTop_toTopOf="@+id/graph_lengthtype" />
+
+        <Button
+            android:id="@+id/graph_right"
+            style="@style/Widget.AppCompat.Button.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:onClick="addOffset"
+            android:text="@string/main_gt"
+            app:layout_constraintBottom_toBottomOf="@+id/graph_lengthtype"
+            app:layout_constraintStart_toEndOf="@+id/graph_lengthtype"
+            app:layout_constraintTop_toTopOf="@+id/graph_lengthtype" />
+
+        <Spinner
+            android:id="@+id/graph_lengthtype"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_weight="1"
+            android:entries="@string/todo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/add_button" />
+
+        <com.murph9.moneybutdaily.StackedBarGraphView
+            android:id="@+id/stacked_bar_graph"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_expenses"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bar_graph" />
 
 
-</android.support.constraint.ConstraintLayout>
+    </android.support.constraint.ConstraintLayout>
     </ScrollView>
