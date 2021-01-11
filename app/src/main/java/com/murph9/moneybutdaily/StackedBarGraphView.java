@@ -1,11 +1,13 @@
 package com.murph9.moneybutdaily;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -22,6 +24,7 @@ public class StackedBarGraphView extends View {
 
     private final static String NO_DATA_MESSAGE = "Stacked BarGraphView: No data found";
     private final Paint paint = new Paint();
+    private Pair<Float, Float> lastTouched;
 
     private List<Bar> bars = new LinkedList<>();
     private float maxValue;
@@ -78,12 +81,11 @@ public class StackedBarGraphView extends View {
         this.paint.setStyle(Paint.Style.FILL);
         this.paint.setTextSize(getResources().getDisplayMetrics().scaledDensity * 17);
 
-        this.setOnTouchListener(new OnTouchListener() {
+        this.setOnClickListener(new OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                performClick();
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    return false;
+            public void onClick(View view) {
+                if (lastTouched == null) {
+                    return;
                 }
 
                 // based on the event, calc which segment was pressed
@@ -91,13 +93,16 @@ public class StackedBarGraphView extends View {
                 final int height = getHeight();
 
                 if (bars == null || bars.size() < 1) {
-                    return false;
+                    return;
                 }
 
                 // TODO looks similar to the draw method, but don't slow down the onDraw method!
                 // compute rectangles vertically across the canvas (using x% of the space)
                 final float widthPercent = 0.9f;
                 final int count = bars.size();
+                final float x = lastTouched.first;
+                final float y = lastTouched.second;
+                lastTouched = null;
 
                 for (int i = 0; i < count; i++) {
                     Bar b = bars.get(i);
@@ -108,14 +113,23 @@ public class StackedBarGraphView extends View {
                         paint.setColor(CategoryColourService.colourForCategory(bs.label));
                         RectF r = new RectF(width * (1 - widthPercent) / 2 / count + width * ((float)i) / count, cur,
                                 width * ((float)i) / count + width * widthPercent / count, cur+barHeight);
-                        if (r.contains(event.getX(), event.getY())) {
+                        if (r.contains(x, y)) {
                             barClickedListener.onBarClicked(bs.label + " ("+H.to2Places(bs.value) + ")");
-                            return false;
+                            return;
                         }
                         cur += barHeight;
                     }
                 }
+            }
+        });
 
+        this.setOnTouchListener(new OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    lastTouched = new Pair<>(event.getX(), event.getY());
+                }
                 return false;
             }
         });

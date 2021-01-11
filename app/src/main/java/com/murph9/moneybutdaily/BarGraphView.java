@@ -1,11 +1,13 @@
 package com.murph9.moneybutdaily;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -23,6 +25,7 @@ public class BarGraphView extends View {
     private HashMap<Bar, SpecialBar> specialBars;
     private List<Bar> bars;
     private static final float COLOUR_SCALE = 100;
+    private Pair<Float, Float> lastTouched;
 
     private Paint paint;
     private float minValue;
@@ -57,17 +60,26 @@ public class BarGraphView extends View {
     }
     private void constructorHelper() {
         this.paint = new Paint();
-        this.setOnTouchListener(new OnTouchListener() {
+        this.setOnClickListener(new OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    performClick();
-                    return false;
+            public void onClick(View view) {
+                if (lastTouched == null) {
+                    return;
                 }
 
                 //based on the event, calc which bar was pressed
-                int index = (int)(event.getX() * bars.size()) / v.getWidth();
+                int index = (int)(lastTouched.first * bars.size()) / view.getWidth();
                 BarGraphView.this.barClickedListener.onBarClicked(index);
+                lastTouched = null;
+            }
+        });
+        this.setOnTouchListener(new OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    lastTouched = new Pair<>(event.getX(), event.getY());
+                }
                 return false;
             }
         });
