@@ -1,20 +1,30 @@
 package com.murph9.moneybutdaily;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
 
+import com.murph9.moneybutdaily.service.CanvasHelper;
 import com.murph9.moneybutdaily.service.CategoryColourService;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
-public class StackedBarGraphView extends RectFCanvasView {
+import static android.graphics.Color.rgb;
+
+public class StackedBarGraphView extends View {
 
     private final static String NO_DATA_MESSAGE = "Stacked BarGraphView: No data found";
-    private final HashMap<Rect, BarSegment> cachedRect = new HashMap<>();
+    private final Paint paint = new Paint();
+
+    private List<Bar> bars = new LinkedList<>();
+    private float maxValue;
 
     static class Bar {
         private final List<BarSegment> values;
@@ -53,62 +63,114 @@ public class StackedBarGraphView extends RectFCanvasView {
 
     public StackedBarGraphView(Context context) {
         super(context);
-        noDataFoundMessage = NO_DATA_MESSAGE;
+        init();
     }
     public StackedBarGraphView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        noDataFoundMessage = NO_DATA_MESSAGE;
+        init();
     }
     public StackedBarGraphView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        noDataFoundMessage = NO_DATA_MESSAGE;
+        init();
+    }
+
+    private void init() {
+        this.paint.setStyle(Paint.Style.FILL);
+        this.paint.setTextSize(getResources().getDisplayMetrics().scaledDensity * 17);
+
+        this.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                performClick();
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    return false;
+                }
+
+                // based on the event, calc which segment was pressed
+                final int width = getWidth();
+                final int height = getHeight();
+
+                if (bars == null || bars.size() < 1) {
+                    return false;
+                }
+
+                // TODO looks similar to the draw method, but don't slow down the onDraw method!
+                // compute rectangles vertically across the canvas (using x% of the space)
+                final float widthPercent = 0.9f;
+                final int count = bars.size();
+
+                for (int i = 0; i < count; i++) {
+                    Bar b = bars.get(i);
+
+                    float cur = 0;
+                    for (BarSegment bs: b.getBars()) {
+                        float barHeight = height*bs.value / maxValue;
+                        paint.setColor(CategoryColourService.colourForCategory(bs.label));
+                        RectF r = new RectF(width * (1 - widthPercent) / 2 / count + width * ((float)i) / count, cur,
+                                width * ((float)i) / count + width * widthPercent / count, cur+barHeight);
+                        if (r.contains(event.getX(), event.getY())) {
+                            barClickedListener.onBarClicked(bs.label + " ("+H.to2Places(bs.value) + ")");
+                            return false;
+                        }
+                        cur += barHeight;
+                    }
+                }
+
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public boolean performClick() {
+        super.performClick();
+        return true;
     }
 
 
     public void updateBars(List<Bar> bars) {
-        this.cachedRect.clear();
-
-        if (bars == null) {
-            updateRect(null);
-            return;
-        }
+        this.bars = bars;
 
         this.invalidate();
+        this.maxValue = 20; //min of 20
+        if (!this.bars.isEmpty()) {
+            for (Bar b: bars) {
+                maxValue = Math.max(maxValue, b.getMax());
+            }
+        }
+    }
 
-        float maxValue = 20; //min of 20
-        for (Bar b: bars) {
-            maxValue = Math.max(maxValue, b.getMax());
+    @Override
+    public void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+
+        paint.setStrokeWidth(getResources().getDisplayMetrics().scaledDensity*2);
+
+        final int width = getWidth();
+        final int height = getHeight();
+
+        if (bars == null || bars.size() < 1) {
+            canvas.drawColor(rgb(200, 200, 200));
+            CanvasHelper.drawTextCenteredAt(canvas, paint, width/2f, height/2f, NO_DATA_MESSAGE, rgb(0,0,0));
+            return;
         }
 
         // compute rectangles vertically across the canvas (using x% of the space)
         final float widthPercent = 0.9f;
-        final int width = getWidth();
-        final int height = getHeight();
         final int count = bars.size();
 
         for (int i = 0; i < count; i++) {
             Bar b = bars.get(i);
 
             float cur = 0;
-            for (BarSegment p: b.getBars()) {
-                float barHeight = height*p.value/maxValue;
-                RectF rf = new RectF(width * (1 - widthPercent) / 2 / count + width * ((float)i) / count, cur,
-                        width * ((float)i) / count + width * widthPercent / count, cur+barHeight);
-
-                Rect r = new Rect(CategoryColourService.colourForCategory(p.label), rf);
-                cachedRect.put(r, p);
+            for (BarSegment bs: b.getBars()) {
+                float barHeight = height*bs.value / maxValue;
+                paint.setColor(CategoryColourService.colourForCategory(bs.label));
+                canvas.drawRect(width * (1 - widthPercent) / 2 / count + width * ((float)i) / count, cur,
+                        width * ((float)i) / count + width * widthPercent / count, cur+barHeight, paint);
 
                 cur += barHeight;
             }
-        }
-
-        updateRect(cachedRect.keySet());
-    }
-
-    public void rectClicked(Rect r) {
-        if (barClickedListener != null && this.cachedRect.containsKey(r)) {
-            BarSegment seg = this.cachedRect.get(r);
-            barClickedListener.onBarClicked(seg.label + " ("+H.to2Places(seg.value) + ")");
         }
     }
 

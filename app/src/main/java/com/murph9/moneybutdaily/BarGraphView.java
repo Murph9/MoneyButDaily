@@ -20,9 +20,9 @@ public class BarGraphView extends View {
 
     private static final DashPathEffect currentDash = new DashPathEffect(new float[] {10,10}, 5);
 
-    private float scale = 1;
     private HashMap<Bar, SpecialBar> specialBars;
     private List<Bar> bars;
+    private static final float COLOUR_SCALE = 100;
 
     private Paint paint;
     private float minValue;
@@ -74,7 +74,7 @@ public class BarGraphView extends View {
     }
 
     public void init() {
-        this.paint.setStyle(Paint.Style.FILL);
+
         this.paint.setTextSize(getResources().getDisplayMetrics().scaledDensity * 17);
     }
 
@@ -82,34 +82,22 @@ public class BarGraphView extends View {
         this.specialBars = specials;
 
         this.bars = bars;
-        this.maxValue = 0; //0 must be included
+        this.maxValue = 0; // 0 must be included
         this.minValue = 0;
 
-        if (bars == null) {
-            return;
-        }
+        if (bars != null) {
+            for (Bar b : this.bars) {
+                maxValue = Math.max(maxValue, b.value);
+                minValue = Math.min(minValue, b.value);
+            }
 
-        for (Bar b: this.bars) {
-            maxValue = Math.max(maxValue, b.value);
-            minValue = Math.min(minValue, b.value);
-        }
-
-        //round max and min to nearest 'nice' value so the bars aren't at the top of the graph
-        //NOTE: isn't really noticeable
-        maxValue = H.ceilWithFactor(maxValue, (int)scale);
-        minValue = H.floorWithFactor(minValue, (int)scale);
-        this.scale = 20;
-        for (Bar b: bars) {
-            this.scale = Math.max(this.scale, b.value);
+            // round max and min to nearest 'nice' value so the bars aren't at the top of the graph image
+            maxValue = H.ceilWithFactor(maxValue, (int) 10);
+            minValue = H.floorWithFactor(minValue, (int) 10);
         }
 
         this.invalidate();
     }
-
-    public float getScale() {
-        return this.maxValue - this.minValue;
-    }
-
 
     @Override
     public void onDraw(Canvas canvas) {
@@ -119,6 +107,7 @@ public class BarGraphView extends View {
 
         int width = getWidth();
         int height = getHeight();
+        this.paint.setStyle(Paint.Style.FILL);
 
         if (bars == null || bars.size() < 1) {
             canvas.drawColor(rgb(200, 200, 200));
@@ -192,9 +181,9 @@ public class BarGraphView extends View {
         }
 
         if (val >= 0) {
-            return Color.argb(alpha, (int)((Math.atan(-val/ scale)/Math.PI*2 + 1)*255), 255, 0);
+            return Color.argb(alpha, (int)((Math.atan(-val / COLOUR_SCALE)/Math.PI*2 + 1)*255), 255, 0);
         } else {
-            return Color.argb(alpha, 255, (int)((Math.atan(val/(scale /3))/Math.PI*2 + 1)*255), 0);
+            return Color.argb(alpha, 255, (int)((Math.atan(val/(COLOUR_SCALE /3))/Math.PI*2 + 1)*255), 0);
         }
     }
 
