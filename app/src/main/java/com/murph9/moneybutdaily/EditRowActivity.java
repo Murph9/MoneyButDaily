@@ -28,6 +28,7 @@ import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.Row;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 public class EditRowActivity extends AppCompatActivity {
 
@@ -83,7 +84,7 @@ public class EditRowActivity extends AppCompatActivity {
             editRow = EditRowActivity.this.rowViewModel.get(lineId);
 
             mEditAmountView.setText(H.to2Places(editRow.Amount));
-            mEditLengthCountView.setText(editRow.LengthCount+"");
+            mEditLengthCountView.setText(String.format(Locale.ROOT, "%d", editRow.LengthCount));
             mEditLengthTypeView.setSelection(DayType.CAN_SELECT.indexOf(editRow.LengthType));
             mEditCategoryView.setText(editRow.Category);
             mEditIsIncomeView.setChecked(editRow.IsIncome);
@@ -115,25 +116,36 @@ public class EditRowActivity extends AppCompatActivity {
         //programmatically setting a button action
         final Button button = findViewById(R.id.button_save);
         button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                Row row = generateRowFromView();
+            public void onClick(final View view) {
+
+                final Row row = generateRowFromView();
                 if (editRow != null)
                     row.Line = editRow.Line;
 
-                String rowError = row.Validate();
-                if (rowError != null) {
-                    Toast.makeText(view.getContext(), "Error in row: " + rowError, Toast.LENGTH_LONG).show();
+                if (!MainActivity.getCalc().GetCategories().contains(row.Category)) {
+                    DialogInterface.OnClickListener saveNewCategory = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which){
+                                case DialogInterface.BUTTON_POSITIVE:
+                                    save(view, row);
+                                    break;
+
+                                case DialogInterface.BUTTON_NEGATIVE:
+                                    //No button clicked
+                                    break;
+                            }
+                        }
+                    };
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                    builder.setMessage("That is a new category: " + row.Category + ".\nIs this what you want?").setPositiveButton("Yes", saveNewCategory)
+                            .setNegativeButton("No", saveNewCategory).show();
+
                     return;
-                } else {
-                    if (EditRowActivity.this.editRow != null) {
-                        EditRowActivity.this.rowViewModel.update(row);
-                    } else {
-                        EditRowActivity.this.rowViewModel.insert(row);
-                    }
                 }
 
-                setResult(RESULT_OK);
-                finish();
+                save(view, row);
             }
         });
 
@@ -190,6 +202,23 @@ public class EditRowActivity extends AppCompatActivity {
         }
         row.Note = mEditNotesView.getText().toString().trim();
         return row;
+    }
+
+    private void save(View view, Row row) {
+        String rowError = row.Validate();
+        if (rowError != null) {
+            Toast.makeText(view.getContext(), "Error in row: " + rowError, Toast.LENGTH_LONG).show();
+            return;
+        } else {
+            if (EditRowActivity.this.editRow != null) {
+                EditRowActivity.this.rowViewModel.update(row);
+            } else {
+                EditRowActivity.this.rowViewModel.insert(row);
+            }
+        }
+
+        setResult(RESULT_OK);
+        finish();
     }
 
     private void updatePerDay() {
@@ -277,13 +306,13 @@ public class EditRowActivity extends AppCompatActivity {
     public void onPlusButtonClick(View view) {
         int value = getIntFromString(mEditLengthCountView.getText().toString());
         value++;
-        mEditLengthCountView.setText(Integer.toString(value));
+        mEditLengthCountView.setText(String.format(Locale.ROOT, "%d", value));
     }
     public void onMinusButtonClick(View view) {
         int value = getIntFromString(mEditLengthCountView.getText().toString());
         value--;
         value = Math.max(value, 1); //prevent anything but positive integers
-        mEditLengthCountView.setText(Integer.toString(value));
+        mEditLengthCountView.setText(String.format(Locale.ROOT, "%d", value));
     }
 
     public interface DatePickerCallback {
