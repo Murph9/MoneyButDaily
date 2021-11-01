@@ -63,14 +63,10 @@ public class RowListActivity extends AppCompatActivity {
     }
 
     public void exportRows(View view) {
-        StringBuilder data = new StringBuilder();
-        for (Row r: adapter.getRows()) {
-            data.append("\n").append(RowCsvHelper.convertToCsvRow(r));
-        }
+        String clipData = RowCsvHelper.convertToCsvRows(adapter.getRows());
 
         ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         assert clipboardManager != null;
-        String clipData = data.toString();
         clipboardManager.setPrimaryClip(ClipData.newPlainText("MoneyButDaily export", "Data exported from MoneyButDaily on " + LocalDateTime.now() + " with a length of: " + clipData.length() + "\n\n" + clipData));
 
         //just for you jarrod

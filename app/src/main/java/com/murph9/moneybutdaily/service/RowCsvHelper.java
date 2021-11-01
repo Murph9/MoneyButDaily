@@ -7,12 +7,20 @@ import com.murph9.moneybutdaily.model.DayType;
 import com.murph9.moneybutdaily.model.Row;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 
 public class RowCsvHelper {
-    public static String convertToCsvRow(Row row) {
-        Object[] list = new Object[] { row.Amount, row.IsIncome, row.From, row.LengthCount,
-                row.LengthType, row.Category, row.Repeats, row.LastDay, row.Note };
-        return TextUtils.join(", ", list);
+
+    public static String convertToCsvRows(Collection<Row> rows) {
+        StringBuilder data = new StringBuilder();
+        data.append("Amount, IsIncome, From, LengthCount, LengthType, LengthType, Category, Repeats, LastDay, Note");
+
+        for (Row row: rows) {
+            Object[] list = new Object[]{row.Amount, row.IsIncome, row.From, row.LengthCount,
+                    row.LengthType, row.Category, row.Repeats, row.LastDay, row.Note};
+            data.append("\n").append(TextUtils.join(", ", list));
+        }
+        return data.toString();
     }
 
     public static Row convertFromCsvRow(String[] nextLine) {
