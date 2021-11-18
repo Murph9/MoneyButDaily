@@ -1,3 +1,5 @@
+## NOTE: Deprecated for MoneyButDailyWeb and money.murph9.com
+
 # MoneyButDaily
 A small money management app which really doesn't have a big enough tutorial.
 
